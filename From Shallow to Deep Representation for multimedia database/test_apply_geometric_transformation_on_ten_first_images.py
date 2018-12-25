@@ -4,7 +4,10 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 
 
-class TestGeometricTransformationImages(unittest.TestCase):
+class TestApplyGeometricTransformationOnTenFirstImages(unittest.TestCase):
+
+    def test_select_ten_first_images_on_set(self):
+        pass
 
     def test_scaling(self):
         import numpy as np

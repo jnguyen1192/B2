@@ -32,7 +32,6 @@ class TestFeatureMatching(unittest.TestCase):
         plt.imshow(img3), plt.show()
 
     def test_brut_force_sift_descriptor_ratio_test(self):
-        # TODO
         import numpy as np
         import cv2 as cv
         from matplotlib import pyplot as plt
@@ -52,11 +51,10 @@ class TestFeatureMatching(unittest.TestCase):
             if m.distance < 0.75 * n.distance:
                 good.append([m])
         # cv.drawMatchesKnn expects list of lists as matches.
-        img3 = cv.drawMatchesKnn(img1, kp1, img2, kp2, good, flags=2)
+        img3 = cv.drawMatchesKnn(img1, kp1, img2, kp2, good, flags=2, outImg=img1)
         plt.imshow(img3), plt.show()
 
     def test_flann_based_matcher(self):
-        # TODO
         import numpy as np
         import cv2 as cv
         from matplotlib import pyplot as plt
@@ -74,7 +72,7 @@ class TestFeatureMatching(unittest.TestCase):
         flann = cv.FlannBasedMatcher(index_params, search_params)
         matches = flann.knnMatch(des1, des2, k=2)
         # Need to draw only good matches, so create a mask
-        matchesMask = [[0, 0] for i in xrange(len(matches))]
+        matchesMask = [[0, 0] for i in range(len(matches))]
         # ratio test as per Lowe's paper
         for i, (m, n) in enumerate(matches):
             if m.distance < 0.7 * n.distance:
@@ -85,8 +83,6 @@ class TestFeatureMatching(unittest.TestCase):
                            flags=0)
         img3 = cv.drawMatchesKnn(img1, kp1, img2, kp2, matches, None, **draw_params)
         plt.imshow(img3, ), plt.show()
-
-
 
 
 if __name__ == '__main__':
