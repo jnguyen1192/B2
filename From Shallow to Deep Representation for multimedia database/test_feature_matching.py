@@ -59,7 +59,7 @@ class TestFeatureMatching(unittest.TestCase):
         import cv2 as cv
         from matplotlib import pyplot as plt
         img1 = cv.imread('box.png', 0)  # queryImage
-        img2 = cv.imread('box_in_scene.png', 0)  # trainImage
+        img2 = cv.imread('messi5.jpg', 0)  # trainImage
         # Initiate SIFT detector
         sift = cv.xfeatures2d.SIFT_create()
         # find the keypoints and descriptors with SIFT
@@ -73,10 +73,13 @@ class TestFeatureMatching(unittest.TestCase):
         matches = flann.knnMatch(des1, des2, k=2)
         # Need to draw only good matches, so create a mask
         matchesMask = [[0, 0] for i in range(len(matches))]
+        count = 0
         # ratio test as per Lowe's paper
         for i, (m, n) in enumerate(matches):
             if m.distance < 0.7 * n.distance:
                 matchesMask[i] = [1, 0]
+                count += 1
+        print(count)
         draw_params = dict(matchColor=(0, 255, 0),
                            singlePointColor=(255, 0, 0),
                            matchesMask=matchesMask,
