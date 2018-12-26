@@ -63,6 +63,60 @@ class TestFindMatchOnTenFirstImagesTransformed(unittest.TestCase):
         img2 = cv.imread('box_in_scene.png', 0)  # trainImage
         print(is_match(img1, img2))
 
+    def test_original_image_retrieve(self):
+        import cv2 as cv
+        import glob
+
+        def is_match(img1, img2, threshold=50):
+            # Initiate SIFT detector
+            sift = cv.xfeatures2d.SIFT_create()
+            # find the keypoints and descriptors with SIFT
+            kp1, des1 = sift.detectAndCompute(img1, None)
+            kp2, des2 = sift.detectAndCompute(img2, None)
+            # FLANN parameters
+            FLANN_INDEX_KDTREE = 1
+            index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
+            search_params = dict(checks=50)  # or pass empty dictionary
+            flann = cv.FlannBasedMatcher(index_params, search_params)
+            matches = flann.knnMatch(des1, des2, k=2)
+            # Need to draw only good matches, so create a mask
+            matchesMask = [[0, 0] for i in range(len(matches))]
+            count = 0
+            # ratio test as per Lowe's paper
+            for i, (m, n) in enumerate(matches):
+                if m.distance < 0.7 * n.distance:
+                    matchesMask[i] = [1, 0]
+                    count += 1
+            print(count)
+            return count > threshold
+
+        def train_images(directory='training'):
+            """
+            Get the first name of image on the directory specified
+            :param number: number of name image
+            :param directory: path of the directory
+            :return:
+            """
+            image_list = []
+            for index, filename in enumerate(glob.glob(directory + '/*.jpg')):  # assuming gif
+                image_list.append(filename)
+            return image_list
+        tis = train_images()
+        img1 = cv.imread('image_to_find_match/009885_new.jpg', 0)  # queryImage
+        print("image a trouvee 009885_new.jpg")
+        for train_image in tis:
+            img2 = cv.imread(train_image, 0)  # trainImage
+            #print(train_image)
+            # case image is found
+            if is_match(img1, img2):
+                print("image trouvee ", train_image)
+                break
+
+
+
+        #img2 = cv.imread('box_in_scene.png', 0)  # trainImage
+        #print(is_match(img1, img2))
+
 
 if __name__ == '__main__':
     unittest.main()
