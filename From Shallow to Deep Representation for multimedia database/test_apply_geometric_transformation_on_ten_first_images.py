@@ -2,16 +2,46 @@ import unittest
 
 import cv2 as cv
 import matplotlib.pyplot as plt
+from RandomTransformation import RandomTransformation
 
 
 class TestApplyGeometricTransformationOnTenFirstImages(unittest.TestCase):
 
+    def test_apply_transformation_on_ten_images(self):
+        # apply transformation on the first ten images
+        import glob
+        import os
+
+        def first_images(number=10, directory='training'):
+            """
+            Get the first name of image on the directory specified
+            :param number: number of name image
+            :param directory: path of the directory
+            :return:
+            """
+            image_list = []
+            for index, filename in enumerate(glob.glob(directory + '/*.jpg')):  # assuming gif
+                image_list.append(filename)
+                if index == number:
+                    break
+            return image_list
+        rt = RandomTransformation()
+        first_ten_images = first_images()
+        # apply transformation on each image and stock them into image_to_find_match directory
+        for name_img in first_ten_images:
+            dst = rt.apply_random_transformation(name_img)
+            base_name = os.path.basename(name_img)
+            cv.imwrite('image_to_find_match/' + base_name[:-4] + '_new.jpg', dst)
+
     def test_select_ten_first_images_on_set(self):
+        # select the ten first images of the training repository
         from PIL import Image
         import glob
+        import os
         image_list = []
         for index, filename in enumerate(glob.glob('training/*.jpg')):  # assuming gif
             im = Image.open(filename)
+            print(os.path.basename(filename))
             image_list.append(filename)
             if index == 10:
                 break
@@ -19,99 +49,14 @@ class TestApplyGeometricTransformationOnTenFirstImages(unittest.TestCase):
 
     def test_random_transform_into_img(self):
         # select a transformation using random input
-        import numpy as np
-        import random as rd
-
-        class RandomTransformation:
-            """
-            Class to give a random transformation from an image input
-            """
-
-            def scal_img(self, img):
-                """
-                Scale the image
-                :param img: the input image
-                :return: the ouput image
-                """
-                height, width = img.shape[:2]
-                res = cv.resize(img, (2 * width, 2 * height), interpolation=cv.INTER_CUBIC)
-                return res
-
-            def tran_img(self, img):
-                """
-                Translate the image
-                :param img: the input image
-                :return: the ouput image
-                """
-                rows, cols = img.shape
-                # cols-1 and rows-1 are the coordinate limits.
-                M = cv.getRotationMatrix2D(((cols - 1) / 2.0, (rows - 1) / 2.0), 90, 1)
-                dst = cv.warpAffine(img, M, (cols, rows))
-                return dst
-
-            def rota_img(self, img):
-                """
-                Rotate the image
-                :param img: the input image
-                :return: the ouput image
-                """
-                print(img.shape)
-                rows, cols = img.shape
-                # cols-1 and rows-1 are the coordinate limits.
-                M = cv.getRotationMatrix2D(((cols - 1) / 2.0, (rows - 1) / 2.0), 90, 1)
-                dst = cv.warpAffine(img, M, (cols, rows))
-                return dst
-
-            def pers_img(self, img):
-                """
-                Perspective transformation on the image
-                :param img: the input image
-                :return: the ouput image
-                """
-                pts1 = np.float32([[56, 65], [368, 52], [28, 387], [389, 390]])
-                pts2 = np.float32([[0, 0], [300, 0], [0, 300], [300, 300]])
-                M = cv.getPerspectiveTransform(pts1, pts2)
-                dst = cv.warpPerspective(img, M, (300, 300))
-                return dst
-
-            def select_transformation(self, name_img, num):
-                """
-                Select a transformation using the number
-                :param name_img: the name of the image
-                :param num: the number of the transformation
-                :return: the output image
-                """
-                if num == 1:
-                    img = cv.imread(name_img)
-                    return self.scal_img(img)
-                if num == 2:
-                    img = cv.imread(name_img, 0)
-                    return self.tran_img(img)
-                if num == 3:
-                    img = cv.imread(name_img, 0)
-                    return self.rota_img(img)
-                if num == 4:
-                    img = cv.imread(name_img)
-                    return self.pers_img(img)
-
-            def apply_random_transformation(self, name_img):
-                """
-                Give the random transformation image
-                :param name_img: the name of the image
-                :return: the output image transforme
-                """
-                # random number between 1 and 4
-                random_number = rd.randint(1, 4)
-                return self.select_transformation(name_img, random_number)
-
         rt = RandomTransformation()
         name_img = 'messi5.jpg'
-        img = cv.imread(name_img)
+        #img = cv.imread(name_img)
         dst = rt.apply_random_transformation(name_img)
-        plt.subplot(121), plt.imshow(img), plt.title('Input')
-        plt.subplot(122), plt.imshow(dst), plt.title('Output')
-        plt.show()
-
+        #plt.subplot(121), plt.imshow(img), plt.title('Input')
+        #plt.subplot(122), plt.imshow(dst), plt.title('Output')
+        #plt.show()
+        cv.imwrite('image_to_find_match/messi5_new.jpg', dst)
 
     def test_scaling(self):
         import numpy as np
