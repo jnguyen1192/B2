@@ -67,7 +67,7 @@ class TestFindMatchOnTenFirstImagesTransformed(unittest.TestCase):
         import cv2 as cv
         import glob
 
-        def is_match(img1, img2, threshold=50):
+        def is_match(img1, img2, threshold=400):
             # Initiate SIFT detector
             sift = cv.xfeatures2d.SIFT_create()
             # find the keypoints and descriptors with SIFT
@@ -87,7 +87,7 @@ class TestFindMatchOnTenFirstImagesTransformed(unittest.TestCase):
                 if m.distance < 0.7 * n.distance:
                     matchesMask[i] = [1, 0]
                     count += 1
-            print(count)
+            #print(count)
             return count > threshold
 
         def train_images(directory='training'):
@@ -101,16 +101,33 @@ class TestFindMatchOnTenFirstImagesTransformed(unittest.TestCase):
             for index, filename in enumerate(glob.glob(directory + '/*.jpg')):  # assuming gif
                 image_list.append(filename)
             return image_list
-        tis = train_images()
+
+        def get_images_transformed(img1, tis=train_images()):
+            """
+            Get all the transformed image from the input image
+            :param img1: the input image
+            :param tis: the train images
+            :return: the image which seems like the input image
+            """
+            image_list = []
+            for train_image in tis:
+                img2 = cv.imread(train_image, 0)  # trainImage
+                # print(train_image)
+                # case image is found
+                if is_match(img1, img2):
+                    #print("image trouvee ", train_image)
+                    image_list.append(train_image)
+                    #print(train_image)
+            if len(image_list) == 0:
+                return -1
+            return image_list
+
+
+        #tis = train_images()
         img1 = cv.imread('image_to_find_match/009885_new.jpg', 0)  # queryImage
         print("image a trouvee 009885_new.jpg")
-        for train_image in tis:
-            img2 = cv.imread(train_image, 0)  # trainImage
-            #print(train_image)
-            # case image is found
-            if is_match(img1, img2):
-                print("image trouvee ", train_image)
-                break
+        image_list = get_images_transformed(img1)
+        print(image_list)
 
 
 
