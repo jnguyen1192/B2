@@ -28,8 +28,9 @@ class TestClusterImage(unittest.TestCase):
     def test_cluster_image(self):
         # create the cluster class
         import os
+        import glob
 
-        class cluster_img:
+        class ClusterImg:
             """
             Class to specified each cluster of image
             """
@@ -91,6 +92,49 @@ class TestClusterImage(unittest.TestCase):
                     path_cluster_img = os.path.join(path_cluster, base_name)
                     # add the new img on the cluster directory
                     cv.imwrite(path_cluster_img, img)
+
+        def holiday_images(directory='holiday_dataset'):
+            """
+            Get the first name of image on the directory specified
+            :param number: number of name image
+            :param directory: path of the directory
+            :return:
+            """
+            image_list = []
+            for index, filename in enumerate(glob.glob(directory + '/*.jpg')):  # assuming gif
+                image_list.append(filename)
+            return image_list
+        # all holiday img
+        holiday_dataset = holiday_images()
+        # declare cluster list
+        clusters = []
+        # Initiate SIFT detector
+        sift = cv.xfeatures2d.SIFT_create()
+        # browse all img
+        for path_img in holiday_dataset:
+            img = cv.imread(path_img, 0)
+            # find the keypoints and descriptors with SIFT
+            kp, des = sift.detectAndCompute(img, None)
+            if len(clusters) == 0:
+                # add the first cluster
+                clusters.append(ClusterImg(des,path_img))
+                continue
+            cluster_match = False
+            # for each img
+            for cluster in clusters:
+                # if it matches with cluster
+                if cluster.is_match_cluster(des):
+                    # add in current cluster the path_img
+                    cluster.add_img(path_img)
+                    cluster_match = True
+                    break
+            # if not matchcreate new cluster with descriptor and path_img
+            if not cluster_match:
+                clusters.append(ClusterImg(des, path_img))
+        # write clusters on directories
+        for index, cluster in enumerate(clusters):
+            cluster.build_directory(index)
+
 
 
 if __name__ == '__main__':
