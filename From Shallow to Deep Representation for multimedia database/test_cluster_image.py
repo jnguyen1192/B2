@@ -117,7 +117,7 @@ class TestClusterImage(unittest.TestCase):
             kp, des = sift.detectAndCompute(img, None)
             if len(clusters) == 0:
                 # add the first cluster
-                clusters.append(ClusterImg(des,path_img))
+                clusters.append(ClusterImg(des, path_img))
                 continue
             cluster_match = False
             # for each img
@@ -128,13 +128,12 @@ class TestClusterImage(unittest.TestCase):
                     cluster.add_img(path_img)
                     cluster_match = True
                     break
-            # if not matchcreate new cluster with descriptor and path_img
+            # if not match create new cluster with descriptor and path_img
             if not cluster_match:
                 clusters.append(ClusterImg(des, path_img))
         # write clusters on directories
         for index, cluster in enumerate(clusters):
             cluster.build_directory(index)
-
 
 
 if __name__ == '__main__':
