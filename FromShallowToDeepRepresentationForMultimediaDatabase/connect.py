@@ -36,5 +36,32 @@ def connect():
             print('Database connection closed.')
 
 
+def insert_image_with_descriptor(name_image, des):
+    """ insert image into the PostgreSQL database server """
+    conn = None
+    try:
+        # read connection parameters
+        params = config()
+
+        # connect to the PostgreSQL server
+        conn = psycopg2.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+        print(len(str(des)))
+        print(str(des))
+        # execute a statement
+        cur.execute("INSERT INTO image (name_image, des) VALUES (%s, %s)",
+...      (name_image, des))
+        conn.commit()
+        # close the communication with the PostgreSQL
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
 if __name__ == '__main__':
     connect()
