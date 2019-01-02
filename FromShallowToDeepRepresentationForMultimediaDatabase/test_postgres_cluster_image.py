@@ -41,70 +41,73 @@ class TestPostgresClusterImage(unittest.TestCase):
         #path_cluster = os.path.join(cluster_directory, base_name)
         #cv.imwrite(path_cluster, img)
 
-    def test_postgres_connect(self):
+    def test_postgres_insert_image_with_descriptor(self):
         # connect to the database
-        from connect import insert_image_with_descriptor
+        from postgres_database import insert_image_with_descriptor
 
-        import os
-        base_name = '122302.jpg'
-        holiday_directory = 'holiday_dataset'
-        path_holiday = os.path.join(holiday_directory, base_name)
-        img = cv.imread(path_holiday, 0)  # trainImage
-        #print(img)
-        # Initiate SIFT detector
-        sift = cv.xfeatures2d.SIFT_create()
-        # find the keypoints and descriptors with SIFT
-        kp, des = sift.detectAndCompute(img, None)
-
-        insert_image_with_descriptor(path_holiday, str(des))
-
-    def test_np_array_string(self):
-        # https://stackoverflow.com/questions/10529351/using-a-psycopg2-converter-to-retrieve-bytea-data-from-postgresql
-        import os
-        import psycopg2 as psql
         import numpy as np
-        import io
 
         # converts from python to postgres
         def _adapt_array(text):
             from tempfile import TemporaryFile
             outfile = TemporaryFile()
             np.savetxt(outfile, text)
-            #print(text)
             outfile.seek(0)
+            return outfile.read()
+        import os
+        base_name = '122302.jpg'
+        holiday_directory = 'holiday_dataset'
+        path_holiday = os.path.join(holiday_directory, base_name)
+        # trainImage
+        img = cv.imread(path_holiday, 0)
+        # Initiate SIFT detector
+        sift = cv.xfeatures2d.SIFT_create()
+        # find the keypoints and descriptors with SIFT
+        kp, des = sift.detectAndCompute(img, None)
+        # insert path image with descriptor in postgres database
+        insert_image_with_descriptor(path_holiday, _adapt_array(des))
+
+    def test_case_first_cluster(self):
+        from postgres_database import get_number_cluster
+        print(get_number_cluster())
+
+    def test_np_array_string(self):
+        # https://stackoverflow.com/questions/10529351/using-a-psycopg2-converter-to-retrieve-bytea-data-from-postgresql
+        import os
+        import numpy as np
+
+        # converts from python to postgres
+        def _adapt_array(text):
+            from tempfile import TemporaryFile
+            outfile = TemporaryFile()
+            np.savetxt(outfile, text)
+            outfile.seek(0)  # Only needed here to simulate closing & reopening file
             return outfile.read()
 
         # converts from postgres to python
-        def _typecast_array(value, cur):
-            if value is None:
-                return None
-
-            data = psql.BINARY(value, cur)
-            bdata = io.BytesIO(data)
-            bdata.seek(0)
-            return np.load(bdata)
+        def _typecast_array(string):
+            from tempfile import TemporaryFile
+            outfile = TemporaryFile()
+            outfile.write(string)
+            outfile.seek(0)  # Only needed here to simulate closing & reopening file
+            return np.loadtxt(outfile)
 
         
         base_name = '122302.jpg'
         holiday_directory = 'holiday_dataset'
         path_holiday = os.path.join(holiday_directory, base_name)
         img = cv.imread(path_holiday, 0)  # trainImage
-        #print(img)
+
         # Initiate SIFT detector
         sift = cv.xfeatures2d.SIFT_create()
         # find the keypoints and descriptors with SIFT
         kp, des = sift.detectAndCompute(img, None)
-        #des = np.array([1., 2., 3.], float)
-        my_string = des
-        print(my_string)
-        print(len(my_string))
-        print(_adapt_array(my_string))
-        #print(my_string)
-        #print("my_string ", my_string)
-        #new_array = np.fromstring(my_string)
-        #print(_typecast_array(_adapt_array(des), "numpy"))
-        #print(len(new_array))
-        #print(new_array)
+
+        my_string = _adapt_array(des)
+        print("des ", des)
+
+        new_array = _typecast_array(my_string)
+        print("new_array ", new_array)
 
     def test_cluster_image(self):
         # create the cluster class
