@@ -67,9 +67,62 @@ class TestPostgresClusterImage(unittest.TestCase):
         # insert path image with descriptor in postgres database
         insert_image_with_descriptor(path_holiday, _adapt_array(des))
 
-    def test_case_first_cluster(self):
+    def test_get_number_cluster(self):
         from postgres_database import get_number_cluster
         print(get_number_cluster())
+
+    def test_case_cluster_exists(self):
+        from postgres_database import get_number_cluster
+        if get_number_cluster() == 0:
+            print("No cluster, we will create our first cluster")
+        else:
+            print("Cluster exist")
+
+    def test_case_first_cluster(self):
+        from postgres_database import get_number_cluster, insert_cluster_with_descriptor, insert_has_cluster_with_num_cluster_and_name_image
+        import os
+
+        number_cluster = get_number_cluster()
+        base_name = '122302.jpg'
+        holiday_directory = 'holiday_dataset'
+        path_holiday = os.path.join(holiday_directory, base_name)
+        # trainImage
+        img = cv.imread(path_holiday, 0)
+        # Initiate SIFT detector
+        sift = cv.xfeatures2d.SIFT_create()
+        # find the keypoints and descriptors with SIFT
+        kp, des = sift.detectAndCompute(img, None)
+        if number_cluster == 0:
+            print("No cluster, we will create our first cluster")
+            # use the descriptor to add the new cluster row
+            insert_cluster_with_descriptor(1, des)
+            # use the path of image to add the new has_cluster row
+            insert_has_cluster_with_num_cluster_and_name_image(1, path_holiday)
+        else:
+            print("Cluster exist")
+
+    def test_case_other_cluster(self):
+        from postgres_database import get_number_cluster, insert_cluster_with_descriptor, insert_has_cluster_with_num_cluster_and_name_image
+        import os
+
+        number_cluster = get_number_cluster()
+        base_name = '122302.jpg'
+        holiday_directory = 'holiday_dataset'
+        path_holiday = os.path.join(holiday_directory, base_name)
+        # trainImage
+        img = cv.imread(path_holiday, 0)
+        # Initiate SIFT detector
+        sift = cv.xfeatures2d.SIFT_create()
+        # find the keypoints and descriptors with SIFT
+        kp, des = sift.detectAndCompute(img, None)
+        if number_cluster == 0:
+            print("No cluster, we will create our first cluster")
+            # use the descriptor to add the new cluster row
+            insert_cluster_with_descriptor(1, des)
+            # use the path of image to add the new has_cluster row
+            insert_has_cluster_with_num_cluster_and_name_image(1, path_holiday)
+        else:
+            print("Cluster exist")
 
     def test_np_array_string(self):
         # https://stackoverflow.com/questions/10529351/using-a-psycopg2-converter-to-retrieve-bytea-data-from-postgresql

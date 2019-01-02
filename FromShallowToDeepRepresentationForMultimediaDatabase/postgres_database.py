@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import psycopg2
 from config import config
+import numpy as np
 #http://www.postgresqltutorial.com/postgresql-python/connect/
 
 
@@ -62,6 +63,15 @@ def insert_image_with_descriptor(name_image, des):
             conn.close()
 
 
+# converts from python to postgres
+def _adapt_array(text):
+    from tempfile import TemporaryFile
+    outfile = TemporaryFile()
+    np.savetxt(outfile, text)
+    outfile.seek(0)
+    return outfile.read()
+
+
 def insert_cluster_with_descriptor(num_cluster, des):
     """ insert image into the PostgreSQL database server """
     conn = None
@@ -76,7 +86,7 @@ def insert_cluster_with_descriptor(num_cluster, des):
         cur = conn.cursor()
 
         # execute a statement
-        cur.execute("INSERT INTO cluster(num_cluster, des) VALUES (%s, %s)", (num_cluster, des))
+        cur.execute("INSERT INTO cluster(num_cluster, des) VALUES (%s, %s)", (num_cluster, _adapt_array(des)))
         conn.commit()
 
         # close the communication with the PostgreSQL
