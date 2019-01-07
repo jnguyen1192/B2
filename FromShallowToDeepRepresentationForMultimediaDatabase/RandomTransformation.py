@@ -1,7 +1,14 @@
 import numpy as np
 import random as rd
 import cv2 as cv
+"""
+https://www.openssl.org/source/ 
+./config --prefix=/build/staticlibssl no-shared && make depend && make 
+Python 3.7
+https://www.python.org/downloads/release/python-371/ 
+./configure && make &&  make install
 
+"""
 
 class RandomTransformation:
     """
