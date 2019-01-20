@@ -10,7 +10,7 @@ class ImageRetrieveLocal:
         self.nb_cluster = 0
         self.path_imgs = path_imgs
 
-    def holiday_images(self):
+    def holiday_images(self, number_img):
         """
         Get the first name of image on the directory specified
         :param number: number of name image
@@ -20,6 +20,8 @@ class ImageRetrieveLocal:
         image_list = []
         for index, filename in enumerate(glob.glob(self.path_imgs + '/*.jpg')):  # assuming gif
             image_list.append(filename)
+            if index >= number_img-1:
+                break
         return image_list
 
     def extract_descriptor_from_path_img(self, path_img):

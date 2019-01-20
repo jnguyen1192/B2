@@ -93,7 +93,15 @@ class TestImageRetrievalLocal(unittest.TestCase):
         path_img = "../../cluster_res_1/0/126401.jpg"
         num_cluster = 0
         assert(irl.add_img_on_cluster(path_img, num_cluster) == 0)
-        #os.system("rm -r 0")
+
+    def test_holiday_images(self):
+        """
+        Test if 50 images are selected
+        """
+        nb_imgs = 50
+        irl = ImageRetrieveLocal("../../holiday_dataset")
+        image_list = irl.holiday_images(nb_imgs)
+        assert(len(image_list) == nb_imgs)
 
 
 if __name__ == '__main__':
