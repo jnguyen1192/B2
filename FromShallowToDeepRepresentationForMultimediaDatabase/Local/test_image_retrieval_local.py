@@ -20,6 +20,20 @@ class TestImageRetrievalLocal(unittest.TestCase):
         kp, des = sift.detectAndCompute(img, None)
         np.savetxt("0/des", des)
 
+    def test_extract_descriptor_from_path_img(self):
+        """
+        Test if the function extract descriptor from path image
+        return the correct descriptor.
+        """
+        irl = ImageRetrieveLocal("../holiday_dataset")
+
+        path_img = "../cluster_res_1/0/126400.jpg"
+
+        des1 = irl.extract_descriptor_from_path_img(path_img)
+        des2 = irl.get_des_from_path_des("0/des")
+
+        assert(np.array_equal(des1, des2))
+
     def test_save_des_with_img_into_new_cluster(self):
         """
         Test if the function to save descriptor and image on a new directory works.
@@ -44,6 +58,12 @@ class TestImageRetrievalLocal(unittest.TestCase):
         des2 = irl.extract_descriptor_from_path_img(path_img)
 
         assert(np.array_equal(des1, des2))
+
+    def test_compare_descriptor_true(self):
+        """
+        Test if the function compare descriptor works with true case.
+        """
+
 
 
 
