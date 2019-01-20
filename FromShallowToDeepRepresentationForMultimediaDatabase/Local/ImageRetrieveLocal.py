@@ -2,12 +2,25 @@ import cv2 as cv
 import numpy as np
 import logging
 import os
+import glob
 
 
 class ImageRetrieveLocal:
     def __init__(self, path_imgs):
         self.nb_cluster = 0
         self.path_imgs = path_imgs
+
+    def holiday_images(self):
+        """
+        Get the first name of image on the directory specified
+        :param number: number of name image
+        :param directory: path of the directory
+        :return:
+        """
+        image_list = []
+        for index, filename in enumerate(glob.glob(self.path_imgs + '/*.jpg')):  # assuming gif
+            image_list.append(filename)
+        return image_list
 
     def extract_descriptor_from_path_img(self, path_img):
         """
@@ -32,7 +45,7 @@ class ImageRetrieveLocal:
         """
         try:
             # create a new directory with the nb of cluster
-            os.system("mkdir " + str(self.nb_cluster))
+            os.system("mkdir -p " + str(self.nb_cluster))
             # add a file with the descriptor on this directory
             np.savetxt(str(self.nb_cluster) + "/des", des)
             # add a file with the img on this directory using the path of the img
@@ -76,11 +89,26 @@ class ImageRetrieveLocal:
                 count += 1
         return count > threshold
 
-    def extract_descriptor(self, path_img):
+    def add_img_on_cluster(self, path_img, num_cluster):
         """
-        Extract the descriptor on a following image
-        :param path_img: the path of the image
-        :return: the numpy array representing the image descriptor
+        Add a new image on the specific cluster.
+        :param path_img: the path of the img
+        :param num_cluster: the number of the cluster we will add the image
+        :return: 0 if it works else -1
         """
-        return [0]
+        try:
+            # add a file with the img on this directory using the path of the img
+            os.system("cp " + path_img + " " + str(num_cluster) + "/" + path_img.split("/")[-1])
+        except:
+            logging.ERROR("Add on cluster " + num_cluster + " not working on")
+            return -1
+        return 0
+
+    def exec(self, nb_img=50):
+        """
+        Execute the algorithm to create the cluster with each image,
+        each cluster has only one descriptor.
+        :param nb_img:
+        :return:
+        """
 
