@@ -1,0 +1,86 @@
+import cv2 as cv
+import numpy as np
+import logging
+import os
+
+
+class ImageRetrieveLocal:
+    def __init__(self, path_imgs):
+        self.nb_cluster = 0
+        self.path_imgs = path_imgs
+
+    def extract_descriptor_from_path_img(self, path_img):
+        """
+        Get the descriptor from the path of the img
+        :param path_img: the path of the descriptor
+        :return: the descriptor
+        """
+        # Initiate SIFT detector
+        sift = cv.xfeatures2d.SIFT_create()
+        img = cv.imread(path_img, 0)
+        # find the keypoints and descriptors with SIFT
+        kp, des = sift.detectAndCompute(img, None)
+        return des
+
+    def save_des_with_img_into_new_cluster(self, des, path_img):
+        """
+        Save the descriptor and the img using path of the image
+        into a new cluster.
+        :param des: the descriptor as a numpy array
+        :param path_img: the path of the image
+        :return: 0 if the save works else -1
+        """
+        try:
+            # create a new directory with the nb of cluster
+            os.system("mkdir " + str(self.nb_cluster))
+            # add a file with the descriptor on this directory
+            np.savetxt(str(self.nb_cluster) + "/des", des)
+            # add a file with the img on this directory using the path of the img
+            os.system("cp " + path_img + " " + str(self.nb_cluster) + "/" + path_img.split("/")[-1])
+        except:
+            logging.ERROR("Save not working on")
+            return -1
+        return 0
+
+    def get_des_from_path_des(self, path_des):
+        """
+        Get the descriptor from the path
+        :param path_des: the path of the descriptor
+        :return: the descriptor
+        """
+        return np.loadtxt(path_des, dtype=np.float32)
+
+    def compare_descriptor(self, path_des1,  des2, threshold=400):
+        """
+        Compare the two descriptor when the result is between the minimum threshold and the maximum threshold
+        :param desc1: the first descriptor
+        :param desc2:   the second descriptor
+        :return: True if they matched else False
+        """
+        # FLANN parameters
+        FLANN_INDEX_KDTREE = 1
+        count = 0
+        index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
+        search_params = dict(checks=50)  # or pass empty dictionary
+        flann = cv.FlannBasedMatcher(index_params, search_params)
+        # get des using path
+        des1 = self.get_des_from_path_des(path_des1)
+        # create the fast knn matcher
+        matches = flann.knnMatch(des1, des2, k=2)
+        # Need to draw only good matches, so create a mask
+        matchesMask = [[0, 0] for i in range(len(matches))]
+        # ratio test as per Lowe's paper
+        for i, (m, n) in enumerate(matches):
+            if m.distance < 0.7 * n.distance:
+                matchesMask[i] = [1, 0]
+                count += 1
+        return count > threshold
+
+    def extract_descriptor(self, path_img):
+        """
+        Extract the descriptor on a following image
+        :param path_img: the path of the image
+        :return: the numpy array representing the image descriptor
+        """
+        return [0]
+
