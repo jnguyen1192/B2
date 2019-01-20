@@ -50,7 +50,7 @@ class ImageRetrieveLocal:
         """
         return np.loadtxt(path_des, dtype=np.float32)
 
-    def compare_descriptor(self, path_des1,  des2, threshold=400):
+    def compare_path_des_and_des(self, path_des1,  des2, threshold=400):
         """
         Compare the two descriptor when the result is between the minimum threshold and the maximum threshold
         :param desc1: the first descriptor

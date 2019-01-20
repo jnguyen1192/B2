@@ -59,13 +59,31 @@ class TestImageRetrievalLocal(unittest.TestCase):
 
         assert(np.array_equal(des1, des2))
 
-    def test_compare_descriptor_true(self):
+    def test_compare_path_des_and_des_true(self):
         """
         Test if the function compare descriptor works with true case.
         """
+        irl = ImageRetrieveLocal("../holiday_dataset")
 
+        path_des = str(0) + "/des"
+        path_img = "../cluster_res_1/0/126401.jpg"
 
+        des = irl.extract_descriptor_from_path_img(path_img)
 
+        assert(irl.compare_path_des_and_des(path_des, des))
+
+    def test_compare_path_des_and_des_false(self):
+        """
+        Test if the function compare descriptor works with false case.
+        """
+        irl = ImageRetrieveLocal("../holiday_dataset")
+
+        path_des = str(0) + "/des"
+        path_img = "../cluster_res_1/1/126402.jpg"
+
+        des = irl.extract_descriptor_from_path_img(path_img)
+
+        assert(not irl.compare_path_des_and_des(path_des, des))
 
 
 if __name__ == '__main__':
