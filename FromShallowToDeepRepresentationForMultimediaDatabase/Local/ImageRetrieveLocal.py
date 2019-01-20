@@ -113,7 +113,7 @@ class ImageRetrieveLocal:
             return -1
         return 0
 
-    def exec(self, nb_img=50):
+    def exec(self, nb_img=50, threshold=400):
         """
         Execute the algorithm to create the cluster with each image,
         each cluster has only one descriptor.
@@ -135,7 +135,7 @@ class ImageRetrieveLocal:
                 for i in range(self.nb_cluster):
                     path_des = str(i) + "/des"
                     print(path_des)
-                    if self.compare_path_des_and_des(path_des, des1):
+                    if self.compare_path_des_and_des(path_des, des1, threshold):
                         self.add_img_on_cluster(path_img, i)
                         cluster_match = True
                         break
