@@ -110,7 +110,21 @@ class ImageRetrieveLocal:
         """
         Execute the algorithm to create the cluster with each image,
         each cluster has only one descriptor.
-        :param nb_img:
-        :return:
+        :param nb_img: the number of image we will use
+        :return: 0 if it works else -1
         """
+        try:
+            # browse images
+            path_imgs = self.holiday_images(nb_img)
+            # TODO
+            #  for each img
+            #     add the first cluster
+            #     for each next img in cluster
+            #      compare cluster descriptor with current image
+            #         if it matches add the image into the current cluster
+            #       else create a new cluster with this image and descriptor
+        except:
+            logging.ERROR("Exec not working")
+            return -1
+        return 0
 
