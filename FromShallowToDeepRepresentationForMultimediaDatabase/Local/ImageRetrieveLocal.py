@@ -10,6 +10,12 @@ class ImageRetrieveLocal:
         self.nb_cluster = 0
         self.path_imgs = path_imgs
 
+    def incr_nb_cluster(self):
+        """
+        Increment the number of current cluster
+        """
+        self.nb_cluster = self.nb_cluster + 1
+
     def holiday_images(self, number_img):
         """
         Get the first name of image on the directory specified
@@ -52,6 +58,7 @@ class ImageRetrieveLocal:
             np.savetxt(str(self.nb_cluster) + "/des", des)
             # add a file with the img on this directory using the path of the img
             os.system("cp " + path_img + " " + str(self.nb_cluster) + "/" + path_img.split("/")[-1])
+            self.incr_nb_cluster()
         except:
             logging.ERROR("Save not working on")
             return -1
@@ -102,7 +109,7 @@ class ImageRetrieveLocal:
             # add a file with the img on this directory using the path of the img
             os.system("cp " + path_img + " " + str(num_cluster) + "/" + path_img.split("/")[-1])
         except:
-            logging.ERROR("Add on cluster " + num_cluster + " not working on")
+            logging.ERROR("Add on cluster " + str(num_cluster) + " not working on")
             return -1
         return 0
 
@@ -116,13 +123,25 @@ class ImageRetrieveLocal:
         try:
             # browse images
             path_imgs = self.holiday_images(nb_img)
-            # TODO
-            #  for each img
-            #     add the first cluster
-            #     for each next img in cluster
-            #      compare cluster descriptor with current image
-            #         if it matches add the image into the current cluster
-            #       else create a new cluster with this image and descriptor
+
+            for path_img in path_imgs:
+                # get the descriptor of the current image
+                des1 = self.extract_descriptor_from_path_img(path_img)
+                if self.nb_cluster == 0:
+                    # add the first cluster
+                    self.save_des_with_img_into_new_cluster(des1, path_img)
+                    continue
+                cluster_match = False
+                for i in range(self.nb_cluster):
+                    path_des = str(i) + "/des"
+                    print(path_des)
+                    if self.compare_path_des_and_des(path_des, des1):
+                        self.add_img_on_cluster(path_img, i)
+                        cluster_match = True
+                        break
+                # case not match create a new cluster
+                if not cluster_match:
+                    self.save_des_with_img_into_new_cluster(des1, path_img)
         except:
             logging.ERROR("Exec not working")
             return -1

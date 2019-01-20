@@ -103,6 +103,13 @@ class TestImageRetrievalLocal(unittest.TestCase):
         image_list = irl.holiday_images(nb_imgs)
         assert(len(image_list) == nb_imgs)
 
+    def test_exec(self):
+        """
+        Test if execution algorithm to retrieve local image works.
+        """
+        irl = ImageRetrieveLocal("../../holiday_dataset")
+        assert(irl.exec(10) == 0)
+
 
 if __name__ == '__main__':
     unittest.main()
