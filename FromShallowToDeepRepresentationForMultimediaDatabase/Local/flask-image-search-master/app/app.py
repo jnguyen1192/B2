@@ -10,6 +10,8 @@ app = Flask(__name__)
 
 INDEX = os.path.join(os.path.dirname(__file__), 'index.csv')
 
+IMAGE_FOLDER = os.path.join('dataset_jpg')
+app.config['UPLOAD_FOLDER'] = IMAGE_FOLDER
 
 # main route
 @app.route('/')
@@ -34,9 +36,10 @@ def search():
 
             # load the query image and describe it
             from skimage import io
-            #import cv2
+            import cv2
             print("image_url ", image_url)
-            query = io.imread(image_url)
+            path_img = os.path.join(os.getcwd(), image_url[1:])
+            query = cv2.imread(path_img, cv2.COLOR_BGR2RGB)
             print("describe")
             features = cd.describe(query)
 
@@ -58,7 +61,7 @@ def search():
 
         except:
             # return error
-            return jsonify({"sorry": "Sorry, no results! Please try again."}), 500
+            jsonify({"sorry": "Sorry, no results! Please try again."}), 500
 
 
 # run!

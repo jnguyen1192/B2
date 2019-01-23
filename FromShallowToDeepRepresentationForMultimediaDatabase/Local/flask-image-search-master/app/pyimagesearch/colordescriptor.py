@@ -11,7 +11,9 @@ class ColorDescriptor:
     def describe(self, image):
         # convert the image to the HSV color space and initialize
         # the features used to quantify the image
+        #print("cvtColor")
         image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        #print("cvtColor")
         features = []
         # grab the dimensions and compute the center of the image
         (h, w) = image.shape[:2]
@@ -24,9 +26,11 @@ class ColorDescriptor:
 
         # construct an elliptical mask representing the center of the
         # image
-        (axesX, axesY) = (int(w * 0.75) / 2, int(h * 0.75) / 2)
+        (axesX, axesY) = (int(w * 0.75 / 2), int(h * 0.75 / 2))
+        #print("ellip")
         ellipMask = np.zeros(image.shape[:2], dtype="uint8")
         cv2.ellipse(ellipMask, (cX, cY), (axesX, axesY), 0, 0, 360, 255, -1)
+        #print("ellip")
 
         # loop over the segments
         for (startX, endX, startY, endY) in segments:
@@ -55,7 +59,7 @@ class ColorDescriptor:
         # normalize the histogram
         hist = cv2.calcHist([image], [0, 1, 2], mask, self.bins,
                             [0, 180, 0, 256, 0, 256])
-        hist = cv2.normalize(hist).flatten()
+        hist = cv2.normalize(hist, hist).flatten()
 
         # return the histogram
         return hist

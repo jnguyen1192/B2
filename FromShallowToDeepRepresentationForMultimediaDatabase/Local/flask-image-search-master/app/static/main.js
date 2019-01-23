@@ -6,7 +6,7 @@ $("#results-table").hide();
 $("#error").hide();
 
 // global
-var url = 'http://static.pyimagesearch.com.s3-us-west-2.amazonaws.com/vacation-photos/dataset/';
+var url = '/static/dataset_jpg/';
 var data = [];
 
 $(function() {
@@ -56,11 +56,10 @@ $(function() {
       },
       // handle error
       error: function(error) {
-        console.log("Hooo")
         console.log(error);
         // append to dom
-        $("#error").append()
         $("#error").show();
+        $("#error").append(error)
       }
     });
 
