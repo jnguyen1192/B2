@@ -34,25 +34,31 @@ def search():
 
             # load the query image and describe it
             from skimage import io
+            #import cv2
+            print("image_url ", image_url)
             query = io.imread(image_url)
+            print("describe")
             features = cd.describe(query)
 
+            print("Searcher")
             # perform the search
             searcher = Searcher(INDEX)
+            print("search")
             results = searcher.search(features)
-
+            print(INDEX)
+            print("image")
             # loop over the results, displaying the score and image name
             for (score, resultID) in results:
                 RESULTS_ARRAY.append(
                     {"image": str(resultID), "score": str(score)})
 
+            print("Before success")
             # return success
             return jsonify(results=(RESULTS_ARRAY[::-1][:3]))
 
         except:
-
             # return error
-            jsonify({"sorry": "Sorry, no results! Please try again."}), 500
+            return jsonify({"sorry": "Sorry, no results! Please try again."}), 500
 
 
 # run!

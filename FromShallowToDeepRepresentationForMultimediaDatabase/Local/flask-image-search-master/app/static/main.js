@@ -43,6 +43,7 @@ $(function() {
       data : { img : image },
       // handle success
       success: function(result) {
+        console.log("Yeah")
         console.log(result.results);
         var data = result.results
         // show table
@@ -55,9 +56,11 @@ $(function() {
       },
       // handle error
       error: function(error) {
+        console.log("Hooo")
         console.log(error);
         // append to dom
         $("#error").append()
+        $("#error").show();
       }
     });
 
