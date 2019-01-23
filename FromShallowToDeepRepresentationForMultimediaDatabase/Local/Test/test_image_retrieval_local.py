@@ -108,7 +108,7 @@ class TestImageRetrievalLocal(unittest.TestCase):
         Test if execution algorithm to retrieve local image works.
         """
         irl = ImageRetrieveLocal("../../holiday_dataset")
-        assert(irl.exec(10, 250) == 0)
+        assert(irl.exec(812, 250) == 0)
 
 
 if __name__ == '__main__':

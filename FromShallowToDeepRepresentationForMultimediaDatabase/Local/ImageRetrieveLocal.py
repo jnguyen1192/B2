@@ -134,7 +134,7 @@ class ImageRetrieveLocal:
                 cluster_match = False
                 for i in range(self.nb_cluster):
                     path_des = str(i) + "/des"
-                    print(path_des)
+                    #print(path_des)
                     if self.compare_path_des_and_des(path_des, des1, threshold):
                         self.add_img_on_cluster(path_img, i)
                         cluster_match = True
