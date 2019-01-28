@@ -9,6 +9,9 @@ from ImageRetrieveGlobal import ImageRetrieveGlobal
 
 class TestImageRetrievalLocal(unittest.TestCase):
 
+    def test_create_descriptor_image_directory(self):
+        pass
+
     def test_0_code(self):
         path_img = "../../cluster_res_1/0/126400.jpg"
         os.system("mkdir -p " + str(0))
