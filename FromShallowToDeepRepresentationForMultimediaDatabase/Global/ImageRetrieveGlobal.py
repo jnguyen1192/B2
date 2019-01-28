@@ -132,26 +132,22 @@ class ImageRetrieveGlobal:
             return -1
         return 0
 
-    def build_descriptor_directory(self, nb_img):
+    def build_descriptor_directory_using_images(self, nb_img):
         """
         Method to build a directory with descriptor for each image.
         :param nb_img: number of descriptor we will create
         :return: 0 if it works else -1
         """
         try:
-            # browse images
             path_imgs = self.holiday_images(nb_img)
-            print(path_imgs)
-
+            # browse images
             for path_img in path_imgs:
                 # get the descriptor of the current image
                 des = self.extract_descriptor_from_path_img(path_img)
-                # print the descriptor path
-                des_path = self.build_path_des(path_img)
-                print(des_path)
-                # add the descriptor on the descriptor directory with the name of  the image
-                #self.save_des_in_descriptor_directory(des, path_img)
-
+                # build the descriptor path using the path of the image
+                path_des = self.build_path_des(path_img)
+                # add the descriptor on the descriptor directory with the name of the image
+                np.savetxt(path_des, des)
         except:
             logging.ERROR("Exec not working")
             return -1

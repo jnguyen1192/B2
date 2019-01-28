@@ -11,12 +11,10 @@ class TestImageRetrievalLocal(unittest.TestCase):
 
     def test_create_descriptor_image_directory(self):
         irg = ImageRetrieveGlobal("../dataset_jpg")
-        irg.build_descriptor_directory(20)
+        irg.build_descriptor_directory_using_images(812)
 
-    def test_1_code(self):
+    def test_build_path_des(self):
         # descriptor directory
-        path_img = "../dataset_jpg/126400.jpg"
-
         def build_path_des(path_img):
             """
             Build the path with the descriptor directory for the descriptor
@@ -35,9 +33,16 @@ class TestImageRetrievalLocal(unittest.TestCase):
             # build the descriptor path
             path_des = os.path.join(beg_path, end_path)
             return path_des
-        path_des = build_path_des(path_img)
-        print("path_des ", path_des)
-
+        # the path of the image
+        path_img = "../dataset_jpg/126400.jpg"
+        # the object with methods
+        irg = ImageRetrieveGlobal("../dataset_jpg")
+        # the path of the descriptor
+        path_des = irg.build_path_des(path_img)
+        # the descriptor
+        des = irg.extract_descriptor_from_path_img(path_img)
+        #np.savetxt(path_des, des)
+        print("np.savetxt done ", path_des)
 
     def test_0_code(self):
         path_img = "../../cluster_res_1/0/126400.jpg"
