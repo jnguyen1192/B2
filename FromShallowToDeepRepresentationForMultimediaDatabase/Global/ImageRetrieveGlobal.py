@@ -6,9 +6,10 @@ import glob
 
 
 class ImageRetrieveGlobal:
-    def __init__(self, path_imgs):
+    def __init__(self, path_imgs, des_dir="dataset_des"):
         self.nb_cluster = 0
         self.path_imgs = path_imgs
+        self.des_dir = des_dir
 
     def incr_nb_cluster(self):
         """
@@ -43,12 +44,30 @@ class ImageRetrieveGlobal:
         kp, des = sift.detectAndCompute(img, None)
         return des
 
-    def save_des_with_img_into_new_cluster(self, des, path_img):
+    def build_path_des(self, path_img):
         """
-        Save the descriptor and the img using path of the image
+        Build the path with the descriptor directory for the descriptor
+        :param path_img: the path of the current image
+        :return: the path of the descriptor
+        """
+        des_dir = self.des_dir
+        # split the path of the image
+        split_res = path_img.split("/")
+        # get the image name without the extension .jpg
+        img_name_without_extension = split_res[-1].split(".jpg")[0]
+        # build the beginning of the path
+        beg_path = os.path.join(*split_res[:-2])
+        # build the end of the path
+        end_path = os.path.join(des_dir, img_name_without_extension + ".txt")
+        # build the descriptor path
+        path_des = os.path.join(beg_path, end_path)
+        return path_des
+
+    def save_des_in_descriptor_directory(self, des, path_img):
+        """
+        Save the descriptor in the descriptor directory
         into a new cluster.
         :param des: the descriptor as a numpy array
-        :param path_img: the path of the image
         :return: 0 if the save works else -1
         """
         try:
@@ -60,7 +79,7 @@ class ImageRetrieveGlobal:
             os.system("cp " + path_img + " " + str(self.nb_cluster) + "/" + path_img.split("/")[-1])
             self.incr_nb_cluster()
         except:
-            logging.ERROR("Save not working on")
+            logging.ERROR("Save not working on the descriptor directory")
             return -1
         return 0
 
@@ -113,6 +132,31 @@ class ImageRetrieveGlobal:
             return -1
         return 0
 
+    def build_descriptor_directory(self, nb_img):
+        """
+        Method to build a directory with descriptor for each image.
+        :param nb_img: number of descriptor we will create
+        :return: 0 if it works else -1
+        """
+        try:
+            # browse images
+            path_imgs = self.holiday_images(nb_img)
+            print(path_imgs)
+
+            for path_img in path_imgs:
+                # get the descriptor of the current image
+                des = self.extract_descriptor_from_path_img(path_img)
+                # print the descriptor path
+                des_path = self.build_path_des(path_img)
+                print(des_path)
+                # add the descriptor on the descriptor directory with the name of  the image
+                #self.save_des_in_descriptor_directory(des, path_img)
+
+        except:
+            logging.ERROR("Exec not working")
+            return -1
+        return 0
+
     def exec(self, nb_img=50, threshold=400):
         """
         Execute the algorithm to create the cluster with each image,
@@ -129,7 +173,7 @@ class ImageRetrieveGlobal:
                 des1 = self.extract_descriptor_from_path_img(path_img)
                 if self.nb_cluster == 0:
                     # add the first cluster
-                    self.save_des_with_img_into_new_cluster(des1, path_img)
+                    self.save_des_in_descriptor_directory(des1, path_img)
                     continue
                 cluster_match = False
                 for i in range(self.nb_cluster):
@@ -141,7 +185,7 @@ class ImageRetrieveGlobal:
                         break
                 # case not match create a new cluster
                 if not cluster_match:
-                    self.save_des_with_img_into_new_cluster(des1, path_img)
+                    self.save_des_in_descriptor_directory(des1, path_img)
         except:
             logging.ERROR("Exec not working")
             return -1

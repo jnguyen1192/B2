@@ -43,7 +43,7 @@ class TestImageRetrievalLocal(unittest.TestCase):
 
         des = irl.extract_descriptor_from_path_img(path_img)
 
-        assert(irl.save_des_with_img_into_new_cluster(des, path_img) == 0)
+        assert(irl.save_des_in_descriptor_directory(des, path_img) == 0)
 
     def test_get_des_from_path_des(self):
         """

@@ -10,7 +10,34 @@ from ImageRetrieveGlobal import ImageRetrieveGlobal
 class TestImageRetrievalLocal(unittest.TestCase):
 
     def test_create_descriptor_image_directory(self):
-        pass
+        irg = ImageRetrieveGlobal("../dataset_jpg")
+        irg.build_descriptor_directory(20)
+
+    def test_1_code(self):
+        # descriptor directory
+        path_img = "../dataset_jpg/126400.jpg"
+
+        def build_path_des(path_img):
+            """
+            Build the path with the descriptor directory for the descriptor
+            :param path_img: the path of the current image
+            :return: the path of the descriptor
+            """
+            des_dir = "dataset_des"
+            # split the path of the image
+            split_res = path_img.split("/")
+            # get the image name without the extension .jpg
+            img_name_without_extension = split_res[-1].split(".jpg")[0]
+            # build the beginning of the path
+            beg_path = os.path.join(*split_res[:-2])
+            # build the end of the path
+            end_path = os.path.join(des_dir, img_name_without_extension + ".txt")
+            # build the descriptor path
+            path_des = os.path.join(beg_path, end_path)
+            return path_des
+        path_des = build_path_des(path_img)
+        print("path_des ", path_des)
+
 
     def test_0_code(self):
         path_img = "../../cluster_res_1/0/126400.jpg"
@@ -46,7 +73,7 @@ class TestImageRetrievalLocal(unittest.TestCase):
 
         des = irl.extract_descriptor_from_path_img(path_img)
 
-        assert(irl.save_des_with_img_into_new_cluster(des, path_img) == 0)
+        assert(irl.save_des_in_descriptor_directory(des, path_img) == 0)
 
     def test_get_des_from_path_des(self):
         """
