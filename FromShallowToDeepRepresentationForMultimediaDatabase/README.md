@@ -102,6 +102,17 @@ In this last part, we need to create the Bag of Visual Words. We use the labels 
 Then we need to count for each image the number of appears.
 We divide this value by the number of cluster that this image was to normalize it.
 
+### Implementation
+To implement those algorithms, we choose to use a class called ImageRetrieveGlobal.
+This class contains all the method we will use to implement the global descriptor.
+The methods use are :
+- holiday_images : this method give us the image that we will analysis,
+- extract_descriptor_from_path_img : it allows us to extract a descriptor using the path of an image,
+- build_path_des : we need this method to build the path for the descriptor,
+- get_list_using_descriptors_on_directory : it permits to get the list of descriptors for the K-means,
+- k_means : the wrapper using the K-means algorithm from OpenCV library with the prefill parameters.
+
+
 ### Global descriptor - Results
 
 When we use the K-means algorithm, we need to choose K with a value between 100 and 500.
@@ -111,7 +122,7 @@ This way seems slow during K-means execution.
 ## References
 - Frederic, P from Shallow to Deep Representation for multimedia database. Lectures 2019.
 - Adrian, R from pyimagesearch.com. Website 2014.
-}
+
 ``` 
 
 [1]: https://www.python.org/download/releases/3.6/
