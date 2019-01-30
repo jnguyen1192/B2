@@ -2,9 +2,9 @@
 
 Implementation of the image retrieval using Local (as SIFT) and Global descriptor (as BOVW).
 
-Local code from :  https://docs.opencv.org
-Bonus code from : https://www.pyimagesearch.com/2014/12/08/adding-web-interface-image-search-engine-flask/
-Global code from : https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_ml/py_kmeans/py_kmeans_opencv/py_kmeans_opencv.html#kmeans-opencv 
+* Local code from :  https://docs.opencv.org
+* Bonus code from : https://www.pyimagesearch.com/2014/12/08/adding-web-interface-image-search-engine-flask/
+* Global code from : https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_ml/py_kmeans/py_kmeans_opencv/py_kmeans_opencv.html#kmeans-opencv 
 
 ## Prerequisites 
 This code requires OpenCV version 3.3.0.10 and .OpenCV-contrib version 3.3.0.10
@@ -102,8 +102,10 @@ In this last part, we need to create the Bag of Visual Words. We use the labels 
 Then we need to count for each image the number of appears.
 We divide this value by the number of cluster that this image was to normalize it.
 
+### Global descriptor - Results
 
-  
+When we use the K-means algorithm, we need to choose K with a value between 100 and 500.
+This way seems slow during K-means execution.
 
 
 ## References
