@@ -117,7 +117,33 @@ The methods use are :
 
 When we use the K-means algorithm, we need to choose K with a value between 100 and 500.
 This way seems slow during K-means execution.
+We found a new way to have a very fast execution, we need to specify the number of descriptors by image during the SIFT method.
 
+
+### Usage
+
+First we need to install the libraries using requirement.txt file.
+
+pip install -r requirements.txt
+
+## Local
+To launch the script.
+In the Local directory :
+
+python3 ImageRetrieveLocal.py
+
+## Bonus
+To launch the app.
+In Local/flask-image-search-master/app:
+python3 app.py
+Then in your browser 0.0.0.0:5000
+
+## Global
+
+To launch the script.
+You will find every test on Global/Test :
+
+python3 test_image_retrieval_global.py
 
 ## References
 - Frederic, P from Shallow to Deep Representation for multimedia database. Lectures 2019.
