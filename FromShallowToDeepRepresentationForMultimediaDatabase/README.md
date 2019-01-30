@@ -34,23 +34,22 @@ At the end of this process, we should obtains directories representing each clus
 In each directories, we should see one descriptor with the duplicates images.
 
 ### Context
-We need to add the image we want to analysis.
+We need to add the image we want to analysis in the directory dataset_jpg with the jpg format.
 
 ### Implementation
 To implement those algorithms, we choose to use a class called ImageRetrieveLocal.
 This class contains all the method we will use to implement the local descriptor.
 The methods use are :
-	- incr_nb_cluster : it permits to increment the number of cluster to create a new directory,
-	- holiday_images : this method give us the image that we will analysis,
-	- extract_descriptor_from_path_img : it allows us to extract a descriptor using the path of an image,
-	- save_des_with_img_into_new_cluster : it will create the descriptor into a new directory representing a cluster,
-	- get_des_from_path_des : it will give us the descriptor using the path of the correct cluster,
-	- compare_path_des_and_des : it will use the FLANN matcher to compare two descriptors,
-	- add_img_on_cluster : it will add the currebt image on the cluster we target,
-	- exec : it will use the algorithm previously defined.
+- incr_nb_cluster : it permits to increment the number of cluster to create a new directory,
+- holiday_images : this method give us the image that we will analysis,
+- extract_descriptor_from_path_img : it allows us to extract a descriptor using the path of an image,
+- save_des_with_img_into_new_cluster : it will create the descriptor into a new directory representing a cluster,
+- get_des_from_path_des : it will give us the descriptor using the path of the correct cluster,
+- compare_path_des_and_des : it will use the FLANN matcher to compare two descriptors,
+- add_img_on_cluster : it will add the currebt image on the cluster we target,
+- exec : it will use the algorithm previously defined.
 
 ### Local descriptor - Results
-
 When we launch the execution using 100 images from the dataset, it is really slow.
 It will take more than thirty minutes.
 The fact that we need to compare each descriptor for every image prove us that more the dataset is big,
@@ -59,20 +58,52 @@ more the time of execution grow up.
 We also try to integrate a postgres database to add each cluster and descriptor on it using Docker.
 We could compare the speed between the database and the file storage.
 
-## Bonus
 
+## Bonus
 In this part, we will use the image search engine created by Adrian R.
 To use this search engine we need to do some code transformation.
 
-In the file index.
+### Modification
+In the file "app.py" we need to add the directory where we store the images.
+This directory in under the directory called "static".
+Then we must change the file called "main.js" to put this directory in the "url" variable.
+We also need to use the "index.py" file to generate the file "index.csv" containing the histograms.
+The command will be :
+python3 index.py --dataset static/dataset_jpg --index index.csv
+Finnaly, we need to launch the flask application with the following line :
+python3 app.py
 
+### Bonus - Results
+After lauching the flask application, we obtain a web site with four queries.
+When we select an image, the search engine will be activated.
+This give us the duplicate image with the associated score.
+We understand that Adrian R. choose to use the Color Descriptor to match the images.
 
-
-
+The search engine with the Color Descriptor and the histogram is more fast than our local method.
 
 
 ## Global descriptor
 
+In this section, we will focus on the Bag of Visual Word method.
+
+1) Extract keypoints and descriptor
+
+We will extract the descriptor in SIFT using the function build_descriptor_directory_using_images.
+This function permit us to extract the descriptor of the image located in dataset_jpg into a descriptor directory.
+
+2) Clustering the features
+
+To do that part, we need to store the descriptors in the list using the method get_list_using_descriptors_on_directory.
+This list will be used with the K-means method from the OpenCV library.
+
+3) The visual content of an image
+
+In this last part, we need to create the Bag of Visual Words. We use the labels we found previously.
+Then we need to count for each image the number of appears.
+We divide this value by the number of cluster that this image was to normalize it.
+
+
+  
 
 
 ## References
