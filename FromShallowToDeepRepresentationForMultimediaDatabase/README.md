@@ -127,20 +127,21 @@ First we need to install the libraries using requirement.txt file.
 pip install -r requirements.txt
 
 ## Local
-* To launch the script.
-* In the Local directory :
+To launch the script.
+In the Local directory :
 * python3 ImageRetrieveLocal.py
 
 ## Bonus
-* To launch the app.
-* In Local/flask-image-search-master/app:
+To launch the app.
+In Local/flask-image-search-master/app:
 * python3 app.py
-* Then in your browser 0.0.0.0:5000
+Then in your browser go to :
+* 0.0.0.0:5000
 
 ## Global
 
-* To launch the script.
-* You will find every test on Global/Test :
+To launch the script.
+You will find every test on Global/Test :
 * python3 test_image_retrieval_global.py
 
 ## References
