@@ -1,36 +1,19 @@
-import glob
+import numpy as np
+import scipy.io
+
+from RoiPooling import RoiPooling
+import utils
 
 from keras.layers import Lambda, Dense, TimeDistributed, Input
 from keras.models import Model
 from keras.preprocessing import image
+from keras.applications import VGG16
+
 import keras.backend as K
-
-from vgg16 import VGG16
-from RoiPooling import RoiPooling
-
-import scipy.io
-import numpy as np
-import utils
+K.set_image_dim_ordering('th')
 
 
 class ImageRetrieveDeep:
-    def __init__(self, path_imgs, des_dir="dataset_des"):
-        self.path_imgs = path_imgs
-        self.des_dir = des_dir
-
-    def holiday_images(self, number_img):
-        """
-        Get the first name of image on the directory specified
-        :param number: number of name image
-        :param directory: path of the directory
-        :return:
-        """
-        image_list = []
-        for index, filename in enumerate(glob.glob(self.path_imgs + '/*.jpg')):  # assuming gif
-            image_list.append(filename)
-            if index >= number_img-1:
-                break
-        return image_list
 
     def addition(self, x):
         sum = K.sum(x, axis=1)
@@ -43,46 +26,6 @@ class ImageRetrieveDeep:
         out = x * w
         return out
 
-    def rmac(self, input_shape, num_rois):
-
-        # Load VGG16
-        vgg16_model = VGG16(input_shape)
-        # Regions as input
-        in_roi = Input(shape=(num_rois, 4), name='input_roi')
-        # ROI pooling
-        x = RoiPooling([1], num_rois)([vgg16_model.layers[-5].output, in_roi])
-
-        # Normalization
-        x = Lambda(lambda x: K.l2_normalize(x, axis=2), name='norm1')(x)
-
-        # PCA
-        x = TimeDistributed(Dense(512, name='pca',
-                                  kernel_initializer='identity',
-                                  bias_initializer='zeros'))(x)
-
-        # Normalization
-        x = Lambda(lambda x: K.l2_normalize(x, axis=2), name='pca_norm')(x)
-
-        # Addition
-        rmac = Lambda(self.addition, output_shape=(512,), name='rmac')(x)
-
-        # # Normalization
-        rmac_norm = Lambda(lambda x: K.l2_normalize(x, axis=1), name='rmac_norm')(rmac)
-
-        # Define model
-        model = Model([vgg16_model.input, in_roi], rmac_norm)
-
-        # Load PCA weights
-        mat = scipy.io.loadmat(utils.DATA_DIR + utils.PCA_FILE)
-        b = np.squeeze(mat['bias'], axis=1)
-        w = np.transpose(mat['weights'])
-        model.layers[-4].set_weights([w, b])
-
-        return model
-
-    """
-     Get Regions
-    """
     def get_size_vgg_feat_map(self, input_W, input_H):
         output_W = input_W
         output_H = input_H
@@ -144,19 +87,52 @@ class ImageRetrieveDeep:
         regions = np.asarray(regions)
         return regions
 
-    def r_mac_descriptor(self, file):
+    def rmac(self, input_shape, num_rois):
 
+        # Load VGG16
+        vgg16_model = VGG16(weights='imagenet', include_top=False, input_shape=input_shape)
+        # Regions as input
+        in_roi = Input(shape=(num_rois, 4), name='input_roi')
+        # ROI pooling
+        x = RoiPooling([1], num_rois)([vgg16_model.layers[-5].output, in_roi])
+
+        # Normalization
+        x = Lambda(lambda x: K.l2_normalize(x, axis=2), name='norm1')(x)
+
+        # PCA
+        x = TimeDistributed(Dense(512, name='pca',
+                                  kernel_initializer='identity',
+                                  bias_initializer='zeros'))(x)
+
+        # Normalization
+        x = Lambda(lambda x: K.l2_normalize(x, axis=2), name='pca_norm')(x)
+
+        # Addition
+        rmac = Lambda(self.addition, output_shape=(512,), name='rmac')(x)
+
+        # # Normalization
+        rmac_norm = Lambda(lambda x: K.l2_normalize(x, axis=1), name='rmac_norm')(rmac)
+
+        # Define model
+        model = Model([vgg16_model.input, in_roi], rmac_norm)
+
+        # Load PCA weights
+        mat = scipy.io.loadmat(utils.DATA_DIR + utils.PCA_FILE)
+        b = np.squeeze(mat['bias'], axis=1)
+        w = np.transpose(mat['weights'])
+        model.layers[-4].set_weights([w, b])
+
+        return model
+
+    def r_mac_descriptor(self, file):
         # Load sample image
         # file = utils.DATA_DIR + 'sample.jpg'
         img = image.load_img(file)
-
         # Resize
         scale = utils.IMG_SIZE / max(img.size)
-        new_size = (
-        int(np.ceil(scale * img.size[0])), int(np.ceil(scale * img.size[1])))  # (utils.IMG_SIZE, utils.IMG_SIZE)
+        new_size = (int(np.ceil(scale * img.size[0])), int(np.ceil(scale * img.size[1])))  # (utils.IMG_SIZE, utils.IMG_SIZE)
         print('Original size: %s, Resized image: %s' % (str(img.size), str(new_size)))
         img = img.resize(new_size)
-
         # Mean substraction
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)

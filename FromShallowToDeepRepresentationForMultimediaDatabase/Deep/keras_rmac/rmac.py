@@ -64,17 +64,14 @@ def rmac(input_shape, num_rois):
 
 
 def r_mac_descriptor(file):
-
     # Load sample image
     #file = utils.DATA_DIR + 'sample.jpg'
     img = image.load_img(file)
-
     # Resize
     scale = utils.IMG_SIZE / max(img.size)
     new_size = (int(np.ceil(scale * img.size[0])), int(np.ceil(scale * img.size[1])))  #  (utils.IMG_SIZE, utils.IMG_SIZE)
     print('Original size: %s, Resized image: %s' % (str(img.size), str(new_size)))
     img = img.resize(new_size)
-
     # Mean substraction
     x = image.img_to_array(img)
     x = np.expand_dims(x, axis=0)
@@ -97,7 +94,6 @@ if __name__ == "__main__":
 
     # Load sample image
     file = utils.DATA_DIR + 'sample.jpg'
-
     RMAC = r_mac_descriptor(file)
 
     print('RMAC size: %s' % RMAC.shape[1])
