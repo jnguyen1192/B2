@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.io
+import glob
 
 from RoiPooling import RoiPooling
 import utils
@@ -12,9 +13,35 @@ from keras.applications import VGG16
 import keras.backend as K
 K.set_image_dim_ordering('th')
 
+from sklearn.metrics.pairwise import cosine_similarity
+
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # hide warning with tensorflow
+
 
 class ImageRetrieveDeep:
+    def __init__(self, path_imgs, des_dir="dataset_des"):
+        self.path_imgs = path_imgs
+        self.des_dir = des_dir
 
+    def holiday_images(self, number_img):
+        """
+        Get the first name of image on the directory specified
+        :param number: number of name image
+        :param directory: path of the directory
+        :return:
+        """
+        image_list = []
+        for index, filename in enumerate(glob.glob(self.path_imgs + '/*.jpg')):  # assuming gif
+            image_list.append(filename)
+            if index >= number_img-1:
+                break
+        return image_list
+
+
+    """
+        RMAC descriptor
+    """
     def addition(self, x):
         sum = K.sum(x, axis=1)
         return sum
@@ -131,7 +158,7 @@ class ImageRetrieveDeep:
         # Resize
         scale = utils.IMG_SIZE / max(img.size)
         new_size = (int(np.ceil(scale * img.size[0])), int(np.ceil(scale * img.size[1])))  # (utils.IMG_SIZE, utils.IMG_SIZE)
-        print('Original size: %s, Resized image: %s' % (str(img.size), str(new_size)))
+        #print('Original size: %s, Resized image: %s' % (str(img.size), str(new_size)))
         img = img.resize(new_size)
         # Mean substraction
         x = image.img_to_array(img)
@@ -141,9 +168,15 @@ class ImageRetrieveDeep:
         # Load RMAC model
         Wmap, Hmap = self.get_size_vgg_feat_map(x.shape[3], x.shape[2])
         regions = self.rmac_regions(Wmap, Hmap, 7)
-        print('Loading RMAC model...')
+        #print('Loading RMAC model...')
         model = self.rmac((x.shape[1], x.shape[2], x.shape[3]), len(regions))
 
         # Compute RMAC vector
-        print('Extracting RMAC from image...')
+        #print('Extracting RMAC from image...')
         return model.predict([x, np.expand_dims(regions, axis=0)])
+
+    """
+        RMAC matcher
+    """
+    def matcher(self, des1, des2):
+        return cosine_similarity(des1, des2)[0]
