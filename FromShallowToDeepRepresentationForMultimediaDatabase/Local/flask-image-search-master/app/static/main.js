@@ -6,7 +6,7 @@ $("#results-table").hide();
 $("#error").hide();
 
 // global
-var url = '/static/dataset_jpg/';
+var url = '/static/data/';
 var data = [];
 
 $(function() {

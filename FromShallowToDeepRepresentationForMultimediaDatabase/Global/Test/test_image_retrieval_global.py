@@ -9,7 +9,7 @@ from ImageRetrieveGlobal import ImageRetrieveGlobal
 class TestImageRetrievalLocal(unittest.TestCase):
 
     def test_create_descriptor_image_directory(self):
-        irg = ImageRetrieveGlobal("../dataset_jpg")
+        irg = ImageRetrieveGlobal("../data")
         irg.build_descriptor_directory_using_images(10)
         assert True
 
@@ -18,9 +18,9 @@ class TestImageRetrievalLocal(unittest.TestCase):
         Test if the build path works
         """
         # the path of the image
-        path_img = "../dataset_jpg/126400.jpg"
+        path_img = "../data/126400.jpg"
         # the object with methods
-        irg = ImageRetrieveGlobal("../dataset_jpg")
+        irg = ImageRetrieveGlobal("../data")
         # the path of the descriptor
         path_des = irg.build_path_des(path_img)
         assert path_des == "../dataset_des/126400.txt"
@@ -30,7 +30,7 @@ class TestImageRetrievalLocal(unittest.TestCase):
         Test if the list containing the descriptors of the ten
         first images is build correctly.
         """
-        irg = ImageRetrieveGlobal("../dataset_jpg")
+        irg = ImageRetrieveGlobal("../data")
         l = irg.get_list_using_descriptors_on_directory(6)
         assert len(l) == 83426
 
@@ -38,7 +38,7 @@ class TestImageRetrievalLocal(unittest.TestCase):
         """
         Test the K-means algorithm using K-means
         """
-        irg = ImageRetrieveGlobal("../dataset_jpg")
+        irg = ImageRetrieveGlobal("../data")
         X = irg.get_list_using_descriptors_on_directory(30)
 
         ret, label, center = irg.k_means_(X)
@@ -55,8 +55,8 @@ class TestImageRetrievalLocal(unittest.TestCase):
         """
         Test the save with a descriptor
         """
-        irg = ImageRetrieveGlobal("../dataset_jpg")
-        path_img = "../dataset_jpg/100000.jpg"
+        irg = ImageRetrieveGlobal("../data")
+        path_img = "../data/100000.jpg"
         path_des = "des.txt"
         des = irg.extract_descriptor_from_path_img(path_img)
         # add the descriptor in integer on the descriptor directory with the name of the image

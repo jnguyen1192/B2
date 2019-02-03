@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 INDEX = os.path.join(os.path.dirname(__file__), 'index.csv')
 
-IMAGE_FOLDER = os.path.join('dataset_jpg')
+IMAGE_FOLDER = os.path.join('data')
 app.config['UPLOAD_FOLDER'] = IMAGE_FOLDER
 
 # main route

@@ -1,16 +1,13 @@
 import unittest
 
-import os
-
-import numpy as np
-from ImageRetrieveDeep import ImageRetrieveDeep
+import keras_rmac.rmac as rm
+import utils as ut
 
 
-class TestImageRetrievalLocal(unittest.TestCase):
+class TestImageRetrievalDeep(unittest.TestCase):
 
     def test_create_descriptor_image_directory(self):
-        irg = ImageRetrieveGlobal("../dataset_jpg")
-        irg.build_descriptor_directory_using_images(10)
+        rm.r_mac_descriptor(ut.DATA_DIR + 'sample.jpg')
         assert True
 
 

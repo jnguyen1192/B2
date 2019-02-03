@@ -1,10 +1,16 @@
-import cv2 as cv
-import numpy as np
-import logging
-import os
 import glob
 
-import keras_rmac.rmac
+from keras.layers import Lambda, Dense, TimeDistributed, Input
+from keras.models import Model
+from keras.preprocessing import image
+import keras.backend as K
+
+from vgg16 import VGG16
+from RoiPooling import RoiPooling
+
+import scipy.io
+import numpy as np
+import utils
 
 
 class ImageRetrieveDeep:
@@ -26,104 +32,142 @@ class ImageRetrieveDeep:
                 break
         return image_list
 
-    def extract_descriptor_from_path_img(self, path_img):
-        """
-        Get the descriptor from the path of the img
-        :param path_img: the path of the descriptor
-        :return: the descriptor
-        """
-        # Initiate SIFT detector
-        sift = cv.xfeatures2d.SIFT_create()
-        img = cv.imread(path_img, 0)
-        # find the keypoints and descriptors with SIFT
-        kp, des = sift.detectAndCompute(img, None)
-        return des
+    def addition(self, x):
+        sum = K.sum(x, axis=1)
+        return sum
 
-    def build_path_des(self, path_img):
-        """
-        Build the path with the descriptor directory for the descriptor
-        :param path_img: the path of the current image
-        :return: the path of the descriptor
-        """
-        des_dir = self.des_dir
-        # split the path of the image
-        split_res = path_img.split("/")
-        # get the image name without the extension .jpg
-        img_name_without_extension = split_res[-1].split(".jpg")[0]
-        # build the beginning of the path
-        beg_path = os.path.join(*split_res[:-2])
-        # build the end of the path
-        end_path = os.path.join(des_dir, img_name_without_extension + ".txt")
-        # build the descriptor path
-        path_des = os.path.join(beg_path, end_path)
-        return path_des
+    def weighting(self, input):
+        x = input[0]
+        w = input[1]
+        w = K.repeat_elements(w, 512, axis=-1)
+        out = x * w
+        return out
 
-    def get_des_from_path_des(self, path_des):
-        """
-        Get the descriptor from the path
-        :param path_des: the path of the descriptor
-        :return: the descriptor
-        """
-        return np.loadtxt(path_des, dtype=np.float32)
+    def rmac(self, input_shape, num_rois):
 
-    def build_descriptor_directory_using_images(self, nb_img):
-        """
-        Method to build a directory with descriptor for each image.
-        :param nb_img: number of descriptor we will create
-        :return: 0 if it works else -1
-        """
-        try:
-            path_imgs = self.holiday_images(nb_img)
-            # browse images
-            for path_img in path_imgs:
-                # get the descriptor of the current image
-                des = self.extract_descriptor_from_path_img(path_img)
-                # build the descriptor path using the path of the image
-                path_des = self.build_path_des(path_img)
-                # add the descriptor on the descriptor directory with the name of the image
-                np.savetxt(path_des, des, fmt='%i')
-        except:
-            logging.ERROR("Exec not working")
-            return -1
-        return 0
+        # Load VGG16
+        vgg16_model = VGG16(input_shape)
+        # Regions as input
+        in_roi = Input(shape=(num_rois, 4), name='input_roi')
+        # ROI pooling
+        x = RoiPooling([1], num_rois)([vgg16_model.layers[-5].output, in_roi])
 
-    def get_list_using_descriptors_on_directory(self, nb_img):
-        """
-        Build a list of descriptor from directory.
-        :param nb_img: number of descriptor we will create
-        :return: 0 if it works else -1
-        """
-        try:
-            c = False
-            X = ""
-            path_imgs = self.holiday_images(nb_img)
-            # browse images
-            for path_img in path_imgs:
-                # build the descriptor path using the path of the image
-                path_des = self.build_path_des(path_img)
-                # load the descriptor
-                des = np.loadtxt(path_des)
-                # add the descriptor on the list of descriptor
-                if not c:
-                    X = des
-                    c = True
-                else:
-                    X = np.concatenate((X, des))
-        except:
-            logging.ERROR("Exec not working")
-            return -1
-        return X
+        # Normalization
+        x = Lambda(lambda x: K.l2_normalize(x, axis=2), name='norm1')(x)
 
-    def k_means_(self, X, k=300):
-        """
-        Use K-means algorithm with the descriptor and the number of cluster
-        :param X: the list of descriptor
-        :return: ret, label and center
-        """
-        # convert to np.float32
-        Z = np.float32(X)
+        # PCA
+        x = TimeDistributed(Dense(512, name='pca',
+                                  kernel_initializer='identity',
+                                  bias_initializer='zeros'))(x)
 
-        # define criteria and apply kmeans()
-        criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-        return cv.kmeans(Z, k, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS)
+        # Normalization
+        x = Lambda(lambda x: K.l2_normalize(x, axis=2), name='pca_norm')(x)
 
+        # Addition
+        rmac = Lambda(self.addition, output_shape=(512,), name='rmac')(x)
+
+        # # Normalization
+        rmac_norm = Lambda(lambda x: K.l2_normalize(x, axis=1), name='rmac_norm')(rmac)
+
+        # Define model
+        model = Model([vgg16_model.input, in_roi], rmac_norm)
+
+        # Load PCA weights
+        mat = scipy.io.loadmat(utils.DATA_DIR + utils.PCA_FILE)
+        b = np.squeeze(mat['bias'], axis=1)
+        w = np.transpose(mat['weights'])
+        model.layers[-4].set_weights([w, b])
+
+        return model
+
+    """
+     Get Regions
+    """
+    def get_size_vgg_feat_map(self, input_W, input_H):
+        output_W = input_W
+        output_H = input_H
+        for i in range(1, 6):
+            output_H = np.floor(output_H / 2)
+            output_W = np.floor(output_W / 2)
+
+        return output_W, output_H
+
+    def rmac_regions(self, W, H, L):
+        """
+        Get the regions for the RMAC model
+        :param W: the width of the image
+        :param H: the height of the image
+        :param L:
+        :return: the regions of the image as a numpy array
+        """
+        ovr = 0.4  # desired overlap of neighboring regions
+        steps = np.array([2, 3, 4, 5, 6, 7], dtype=np.float)  # possible regions for the long dimension
+
+        w = min(W, H)
+
+        b = (max(H, W) - w) / (steps - 1)
+        idx = np.argmin(abs(((w ** 2 - w * b) / w ** 2) - ovr))  # steps(idx) regions for long dimension
+
+        # region overplus per dimension
+        Wd, Hd = 0, 0
+        if H < W:
+            Wd = idx + 1
+        elif H > W:
+            Hd = idx + 1
+
+        regions = []
+
+        for l in range(1, L + 1):
+
+            wl = np.floor(2 * w / (l + 1))
+            wl2 = np.floor(wl / 2 - 1)
+
+            b = (W - wl) / (l + Wd - 1)
+            if np.isnan(b):  # for the first level
+                b = 0
+            cenW = np.floor(wl2 + np.arange(0, l + Wd) * b) - wl2  # center coordinates
+
+            b = (H - wl) / (l + Hd - 1)
+            if np.isnan(b):  # for the first level
+                b = 0
+            cenH = np.floor(wl2 + np.arange(0, l + Hd) * b) - wl2  # center coordinates
+
+            for i_ in cenH:
+                for j_ in cenW:
+                    # R = np.array([i_, j_, wl, wl], dtype=np.int)
+                    R = np.array([j_, i_, wl, wl], dtype=np.int)
+                    if not min(R[2:]):
+                        continue
+
+                    regions.append(R)
+
+        regions = np.asarray(regions)
+        return regions
+
+    def r_mac_descriptor(self, file):
+
+        # Load sample image
+        # file = utils.DATA_DIR + 'sample.jpg'
+        img = image.load_img(file)
+
+        # Resize
+        scale = utils.IMG_SIZE / max(img.size)
+        new_size = (
+        int(np.ceil(scale * img.size[0])), int(np.ceil(scale * img.size[1])))  # (utils.IMG_SIZE, utils.IMG_SIZE)
+        print('Original size: %s, Resized image: %s' % (str(img.size), str(new_size)))
+        img = img.resize(new_size)
+
+        # Mean substraction
+        x = image.img_to_array(img)
+        x = np.expand_dims(x, axis=0)
+        x = utils.preprocess_image(x)
+
+        # Load RMAC model
+        Wmap, Hmap = self.get_size_vgg_feat_map(x.shape[3], x.shape[2])
+        regions = self.rmac_regions(Wmap, Hmap, 7)
+        print('Loading RMAC model...')
+        model = self.rmac((x.shape[1], x.shape[2], x.shape[3]), len(regions))
+
+        # Compute RMAC vector
+        print('Extracting RMAC from image...')
+        return model.predict([x, np.expand_dims(regions, axis=0)])
