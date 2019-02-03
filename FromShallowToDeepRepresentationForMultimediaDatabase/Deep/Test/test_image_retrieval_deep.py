@@ -31,6 +31,20 @@ class TestImageRetrievalDeep(unittest.TestCase):
 
         assert deep.matcher(rmac_des1, rmac_des2) == 1.0
 
+    def test_read_imgs(self):
+        """ Test read image on directory"""
+        deep = ird.ImageRetrieveDeep("data")
+        print(deep.holiday_images(813))
+
+    def test_build_path_des(self):
+        """ Test build the path of the descriptor"""
+        deep = ird.ImageRetrieveDeep("data", "descriptor")
+        print(deep.build_path_des("data/103800.jpg"))
+
+    def test_build_descriptor_directory_using_images(self):
+        """ Test building descriptor directory"""
+        deep = ird.ImageRetrieveDeep("data", "descriptor")
+
 
 if __name__ == '__main__':
     unittest.main()

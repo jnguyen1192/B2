@@ -15,6 +15,7 @@ K.set_image_dim_ordering('th')
 
 from sklearn.metrics.pairwise import cosine_similarity
 
+import logging
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # hide warning with tensorflow
 
@@ -152,6 +153,11 @@ class ImageRetrieveDeep:
         return model
 
     def r_mac_descriptor(self, file):
+        """
+        Get the descriptor from the path of the img
+        :param file: the path of the image
+        :return: the descriptor
+        """
         # Load sample image
         # file = utils.DATA_DIR + 'sample.jpg'
         img = image.load_img(file)
@@ -180,3 +186,52 @@ class ImageRetrieveDeep:
     """
     def matcher(self, des1, des2):
         return cosine_similarity(des1, des2)[0]
+
+    """
+        Descriptor builder
+    """
+
+    def build_descriptor_directory_using_images(self, nb_img):
+        """
+        Method to build a directory with descriptor for each image.
+        :param nb_img: number of descriptor we will create
+        :return: 0 if it works else -1
+        """
+        try:
+            path_imgs = self.holiday_images(nb_img)
+            # browse images
+            for path_img in path_imgs:
+                # get the descriptor of the current image
+                des = self.r_mac_descriptor(path_img)
+                # build the descriptor path using the path of the image
+                path_des = self.build_path_des(path_img)
+                # add the descriptor on the descriptor directory with the name of the image
+                np.save(path_des, des)
+        except:
+            logging.ERROR("Exec not working")
+            return -1
+        return 0
+
+    def build_path_des(self, path_img):
+        """
+        Build the path with the descriptor directory for the descriptor
+        :param path_img: the path of the current image
+        :return: the path of the descriptor
+        """
+        des_dir = self.des_dir
+        # split the path of the image
+        split_res = path_img.split("/")
+        # get the image name without the extension .jpg
+        img_name_without_extension = split_res[-1].split(".jpg")[0]
+        # build the beginning of the path
+        if len(split_res[:-2]) != 0:
+            beg_path = os.path.join(*split_res[:-2])
+        else:
+            beg_path = ""
+        # build the end of the path
+        end_path = os.path.join(des_dir, img_name_without_extension)
+        # build the descriptor path
+        path_des = os.path.join(beg_path, end_path)
+        return path_des
+
+
