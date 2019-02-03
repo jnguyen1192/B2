@@ -33,8 +33,8 @@ class TestImageRetrievalDeep(unittest.TestCase):
 
     def test_read_imgs(self):
         """ Test read image on directory"""
-        deep = ird.ImageRetrieveDeep("data")
-        print(deep.holiday_images(813))
+        deep = ird.ImageRetrieveDeep("data/dataset")
+        print(len(deep.holiday_images(814)))
 
     def test_build_path_des(self):
         """ Test build the path of the descriptor"""
@@ -43,7 +43,9 @@ class TestImageRetrievalDeep(unittest.TestCase):
 
     def test_build_descriptor_directory_using_images(self):
         """ Test building descriptor directory"""
-        deep = ird.ImageRetrieveDeep("data", "descriptor")
+        deep = ird.ImageRetrieveDeep("data/dataset", "descriptor")
+        res = deep.build_descriptor_directory_using_images(812)
+        assert res == 0
 
 
 if __name__ == '__main__':

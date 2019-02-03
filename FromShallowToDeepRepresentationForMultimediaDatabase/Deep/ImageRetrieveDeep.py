@@ -160,6 +160,7 @@ class ImageRetrieveDeep:
         """
         # Load sample image
         # file = utils.DATA_DIR + 'sample.jpg'
+        K.clear_session()
         img = image.load_img(file)
         # Resize
         scale = utils.IMG_SIZE / max(img.size)
