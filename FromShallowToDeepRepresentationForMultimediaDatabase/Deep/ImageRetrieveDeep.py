@@ -4,6 +4,8 @@ import logging
 import os
 import glob
 
+import keras_rmac.rmac
+
 
 class ImageRetrieveDeep:
     def __init__(self, path_imgs, des_dir="dataset_des"):

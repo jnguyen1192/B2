@@ -28,7 +28,7 @@ def weighting(input):
 def rmac(input_shape, num_rois):
 
     # Load VGG16
-    vgg16_model = VGG16(utils.DATA_DIR + utils.WEIGHTS_FILE, input_shape)
+    vgg16_model = VGG16(input_shape)
     # Regions as input
     in_roi = Input(shape=(num_rois, 4), name='input_roi')
     # ROI pooling
@@ -63,10 +63,10 @@ def rmac(input_shape, num_rois):
     return model
 
 
-if __name__ == "__main__":
+def r_mac_descriptor(file):
 
     # Load sample image
-    file = utils.DATA_DIR + 'sample.jpg'
+    #file = utils.DATA_DIR + 'sample.jpg'
     img = image.load_img(file)
 
     # Resize
@@ -88,6 +88,17 @@ if __name__ == "__main__":
 
     # Compute RMAC vector
     print('Extracting RMAC from image...')
-    RMAC = model.predict([x, np.expand_dims(regions, axis=0)])
+    return model.predict([x, np.expand_dims(regions, axis=0)])
+    #print('RMAC size: %s' % RMAC.shape[1])
+    #print('Done!')
+
+
+if __name__ == "__main__":
+
+    # Load sample image
+    file = utils.DATA_DIR + 'sample.jpg'
+
+    RMAC = r_mac_descriptor(file)
+
     print('RMAC size: %s' % RMAC.shape[1])
     print('Done!')

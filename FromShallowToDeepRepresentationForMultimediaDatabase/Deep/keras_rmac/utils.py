@@ -22,11 +22,11 @@ def load_obj(filename):
 
 
 def preprocess_image(x):
-
+    import numpy as np
     # Substract Mean
-    x[:, 0, :, :] -= 103.939
-    x[:, 1, :, :] -= 116.779
-    x[:, 2, :, :] -= 123.68
+    x[:, 0, :, :] -= np.mean(x[:, 0, :, :])
+    x[:, 1, :, :] -= np.mean(x[:, 1, :, :])
+    x[:, 2, :, :] -= np.mean(x[:, 2, :, :])
 
     # 'RGB'->'BGR'
     x = x[:, ::-1, :, :]
