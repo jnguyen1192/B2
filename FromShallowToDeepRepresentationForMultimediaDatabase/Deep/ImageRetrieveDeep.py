@@ -219,7 +219,7 @@ class ImageRetrieveDeep:
                 path_des = self.build_path_des(path_img)
                 # add the descriptor on the descriptor directory with the name of the image
                 np.save(path_des, des)
-                print(str(index) + "/" + str(nb_img))
+                #print(str(index+1) + "/" + str(nb_img))
         except:
             logging.ERROR("Exec not working")
             return -1

@@ -24,7 +24,6 @@ class Searcher:
             # id = path_img split / le dernier
             id = path_img.split("/")[-1]
             score = ird.matcher(des1, des2)
-            print(score[0])
             # now that we have the distance between the two feature
             # vectors, we can udpate the results dictionary -- the
             # key is the current image ID in the index and the

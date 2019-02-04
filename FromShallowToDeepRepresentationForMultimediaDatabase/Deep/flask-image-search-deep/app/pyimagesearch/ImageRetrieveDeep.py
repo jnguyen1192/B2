@@ -118,52 +118,36 @@ class ImageRetrieveDeep:
     def rmac(self, input_shape, num_rois):
 
         # Load VGG16
-        print("Before VGG16")
         vgg16_model = VGG16(weights='imagenet', include_top=False, input_shape=input_shape)
         # Regions as input
-        print("Before Input")
         in_roi = Input(shape=(num_rois, 4), name='input_roi')
         # ROI pooling
-        print("Before RoiPooling")
         x = RoiPooling([1], num_rois)([vgg16_model.layers[-5].output, in_roi])
 
         # Normalization
-        print("Before Normalization")
         x = Lambda(lambda x: K.l2_normalize(x, axis=2), name='norm1')(x)
 
         # PCA
-        print("Before PCA")
         x = TimeDistributed(Dense(512, name='pca',
                                   kernel_initializer='identity',
                                   bias_initializer='zeros'))(x)
 
         # Normalization
-        print("Before Normalization")
         x = Lambda(lambda x: K.l2_normalize(x, axis=2), name='pca_norm')(x)
 
         # Addition
-        print("Before Addition")
         rmac = Lambda(self.addition, output_shape=(512,), name='rmac')(x)
 
         # # Normalization
-        print("Before Normalization")
         rmac_norm = Lambda(lambda x: K.l2_normalize(x, axis=1), name='rmac_norm')(rmac)
 
         # Define model
-        print("Before Model")
         model = Model([vgg16_model.input, in_roi], rmac_norm)
 
         # Load PCA weights
-        print("Before loadmat")
-        import os
-        print(os.getcwd())
-        print(pyimagesearch.utils.DATA_DIR + pyimagesearch.utils.PCA_FILE)
         mat = scipy.io.loadmat(pyimagesearch.utils.PCA_FILE)
-        print("Before squeeze")
         b = np.squeeze(mat['bias'], axis=1)
-        print("Before transpose")
         w = np.transpose(mat['weights'])
-        print("Before layers")
         model.layers[-4].set_weights([w, b])
 
         return model
