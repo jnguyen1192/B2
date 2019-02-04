@@ -1,8 +1,6 @@
 #!/bin/bash
 
-#echo $USER
-#newgrp docker &
-#sudo apt-get install docker.io
+#sudo groupadd docker & usermod -aG docker $USER
 
 docker pull postgres
 # stop container if it already run
