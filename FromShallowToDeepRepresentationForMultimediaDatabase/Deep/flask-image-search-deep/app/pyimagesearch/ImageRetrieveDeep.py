@@ -181,7 +181,7 @@ class ImageRetrieveDeep:
         # Resize
         scale = pyimagesearch.utils.IMG_SIZE / max(img.size)
         new_size = (int(np.ceil(scale * img.size[0])), int(np.ceil(scale * img.size[1])))  # (utils.IMG_SIZE, utils.IMG_SIZE)
-        print('Original size: %s, Resized image: %s' % (str(img.size), str(new_size)))
+        #print('Original size: %s, Resized image: %s' % (str(img.size), str(new_size)))
         img = img.resize(new_size)
         # Mean substraction
         x = image.img_to_array(img)
@@ -189,16 +189,16 @@ class ImageRetrieveDeep:
         x = pyimagesearch.utils.preprocess_image(x)
 
         # Load RMAC model
-        print("Before get_size_vgg_feat_map")
+        #print("Before get_size_vgg_feat_map")
         Wmap, Hmap = self.get_size_vgg_feat_map(x.shape[3], x.shape[2])
-        print("Before rmac_regions")
+        #print("Before rmac_regions")
         regions = self.rmac_regions(Wmap, Hmap, 7)
         #print('Loading RMAC model...')
-        print("Before rmac")
+        #print("Before rmac")
         model = self.rmac((x.shape[1], x.shape[2], x.shape[3]), len(regions))
 
         # Compute RMAC vector
-        print('Extracting RMAC from image...')
+        #print('Extracting RMAC from image...')
         return model.predict([x, np.expand_dims(regions, axis=0)])
 
     def r_mac_descriptor_using_path_des(self, path_des):
@@ -207,11 +207,6 @@ class ImageRetrieveDeep:
         :param path_des: the path of the descriptor
         :return: the descriptor
         """
-        print("Before np.load")
-        import os
-        print(os.getcwd())
-        print("pyimagesearch.utils.DES_DIR + path_des ",path_des)
-        print("descriptor ", np.load(path_des))
         return np.load(path_des)
 
     """
@@ -240,7 +235,7 @@ class ImageRetrieveDeep:
                 path_des = self.build_path_des(path_img)
                 # add the descriptor on the descriptor directory with the name of the image
                 np.save(path_des, des)
-                print(str(index) + "/" + str(nb_img))
+                #print(str(index) + "/" + str(nb_img))
         except:
             logging.ERROR("Exec not working")
             return -1

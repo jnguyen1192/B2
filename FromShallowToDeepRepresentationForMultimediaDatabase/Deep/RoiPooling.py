@@ -26,20 +26,14 @@ class RoiPooling(Layer):
     """
 
     def __init__(self, pool_list, num_rois, **kwargs):
-        print("Before image_dim_ordering")
         self.dim_ordering = K.image_dim_ordering()
-        print("Before assert")
         assert self.dim_ordering in {'tf', 'th'}, 'dim_ordering must be in {tf, th}'
 
-        print("Before pool_list")
         self.pool_list = pool_list
-        print("Before num_rois")
         self.num_rois = num_rois
 
-        print("Before num_outputs_per_channel")
         self.num_outputs_per_channel = sum([i * i for i in pool_list])
 
-        print("Before super")
         super(RoiPooling, self).__init__(**kwargs)
 
     def build(self, input_shape):
