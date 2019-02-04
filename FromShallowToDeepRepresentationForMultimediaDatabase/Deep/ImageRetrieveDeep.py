@@ -182,10 +182,21 @@ class ImageRetrieveDeep:
         #print('Extracting RMAC from image...')
         return model.predict([x, np.expand_dims(regions, axis=0)])
 
+    def r_mac_descriptor_using_path_des(self, path_des):
+        """
+        Get the descriptor from the path of the descriptor
+        :param path_des: the path of the descriptor
+        :return: the descriptor
+        """
+        return np.load(path_des)
+
     """
         RMAC matcher
     """
     def matcher(self, des1, des2):
+        print("des1 ", des1)
+        print("des2 ", des2)
+        print("cosine_similarity(des1, des2) ", cosine_similarity(des1, des2))
         return cosine_similarity(des1, des2)[0]
 
     """

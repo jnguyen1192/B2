@@ -2,11 +2,13 @@ import os
 
 from flask import Flask, render_template, request, jsonify
 
-
+print("Before ImageRetrieveDeep")
 from pyimagesearch.ImageRetrieveDeep import ImageRetrieveDeep
+print("Before Searcher")
 from pyimagesearch.searcher import Searcher
 
 # create flask instance
+print("Before Flask")
 app = Flask(__name__)
 
 #INDEX = os.path.join(os.path.dirname(__file__), 'index.csv')

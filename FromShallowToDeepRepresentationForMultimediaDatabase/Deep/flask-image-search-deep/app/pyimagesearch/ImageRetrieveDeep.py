@@ -2,8 +2,8 @@ import numpy as np
 import scipy.io
 import glob
 
-from RoiPooling import RoiPooling
-import utils
+from pyimagesearch.RoiPooling import RoiPooling
+import pyimagesearch.utils
 
 from keras.layers import Lambda, Dense, TimeDistributed, Input
 from keras.models import Model
@@ -157,8 +157,8 @@ class ImageRetrieveDeep:
         print("Before loadmat")
         import os
         print(os.getcwd())
-        print(utils.DATA_DIR + utils.PCA_FILE)
-        mat = scipy.io.loadmat(utils.PCA_FILE)
+        print(pyimagesearch.utils.DATA_DIR + pyimagesearch.utils.PCA_FILE)
+        mat = scipy.io.loadmat(pyimagesearch.utils.PCA_FILE)
         print("Before squeeze")
         b = np.squeeze(mat['bias'], axis=1)
         print("Before transpose")
@@ -179,14 +179,14 @@ class ImageRetrieveDeep:
         K.clear_session()
         img = image.load_img(file)
         # Resize
-        scale = utils.IMG_SIZE / max(img.size)
+        scale = pyimagesearch.utils.IMG_SIZE / max(img.size)
         new_size = (int(np.ceil(scale * img.size[0])), int(np.ceil(scale * img.size[1])))  # (utils.IMG_SIZE, utils.IMG_SIZE)
         print('Original size: %s, Resized image: %s' % (str(img.size), str(new_size)))
         img = img.resize(new_size)
         # Mean substraction
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
-        x = utils.preprocess_image(x)
+        x = pyimagesearch.utils.preprocess_image(x)
 
         # Load RMAC model
         print("Before get_size_vgg_feat_map")
@@ -200,6 +200,19 @@ class ImageRetrieveDeep:
         # Compute RMAC vector
         print('Extracting RMAC from image...')
         return model.predict([x, np.expand_dims(regions, axis=0)])
+
+    def r_mac_descriptor_using_path_des(self, path_des):
+        """
+        Get the descriptor from the path of the descriptor
+        :param path_des: the path of the descriptor
+        :return: the descriptor
+        """
+        print("Before np.load")
+        import os
+        print(os.getcwd())
+        print("pyimagesearch.utils.DES_DIR + path_des ",path_des)
+        print("descriptor ", np.load(path_des))
+        return np.load(path_des)
 
     """
         RMAC matcher
@@ -252,7 +265,7 @@ class ImageRetrieveDeep:
         # build the end of the path
         end_path = os.path.join(des_dir, img_name_without_extension)
         # build the descriptor path
-        path_des = os.path.join(beg_path, end_path)
+        path_des = os.path.join(beg_path, end_path + ".npy")
         return path_des
 
 
