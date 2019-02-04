@@ -8,8 +8,6 @@ from pyimagesearch.searcher import Searcher
 # create flask instance
 app = Flask(__name__)
 
-#INDEX = os.path.join(os.path.dirname(__file__), 'index.csv')
-
 IMAGE_FOLDER = os.path.join('data')
 app.config['UPLOAD_FOLDER'] = IMAGE_FOLDER
 
@@ -30,7 +28,6 @@ def search():
         image_url = request.form.get('img')
 
         try:
-
             # initialize the image descriptor
             ird = ImageRetrieveDeep("", "")
             path_img = os.path.join(os.getcwd(), image_url[1:])
