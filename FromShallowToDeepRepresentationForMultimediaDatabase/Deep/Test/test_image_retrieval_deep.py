@@ -28,7 +28,7 @@ class TestImageRetrievalDeep(unittest.TestCase):
     def test_build_descriptor_directory_using_images(self):
         """ Test building descriptor directory"""
         deep = ird.ImageRetrieveDeep("data/dataset", "descriptor")
-        res = deep.build_descriptor_directory_using_images(1)
+        res = deep.build_descriptor_directory_using_images(812)
         assert res == 0
 
 
