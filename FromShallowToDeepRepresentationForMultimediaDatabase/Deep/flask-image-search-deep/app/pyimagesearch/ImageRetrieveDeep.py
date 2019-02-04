@@ -118,36 +118,52 @@ class ImageRetrieveDeep:
     def rmac(self, input_shape, num_rois):
 
         # Load VGG16
+        print("Before VGG16")
         vgg16_model = VGG16(weights='imagenet', include_top=False, input_shape=input_shape)
         # Regions as input
+        print("Before Input")
         in_roi = Input(shape=(num_rois, 4), name='input_roi')
         # ROI pooling
+        print("Before RoiPooling")
         x = RoiPooling([1], num_rois)([vgg16_model.layers[-5].output, in_roi])
 
         # Normalization
+        print("Before Normalization")
         x = Lambda(lambda x: K.l2_normalize(x, axis=2), name='norm1')(x)
 
         # PCA
+        print("Before PCA")
         x = TimeDistributed(Dense(512, name='pca',
                                   kernel_initializer='identity',
                                   bias_initializer='zeros'))(x)
 
         # Normalization
+        print("Before Normalization")
         x = Lambda(lambda x: K.l2_normalize(x, axis=2), name='pca_norm')(x)
 
         # Addition
+        print("Before Addition")
         rmac = Lambda(self.addition, output_shape=(512,), name='rmac')(x)
 
         # # Normalization
+        print("Before Normalization")
         rmac_norm = Lambda(lambda x: K.l2_normalize(x, axis=1), name='rmac_norm')(rmac)
 
         # Define model
+        print("Before Model")
         model = Model([vgg16_model.input, in_roi], rmac_norm)
 
         # Load PCA weights
-        mat = scipy.io.loadmat(utils.DATA_DIR + utils.PCA_FILE)
+        print("Before loadmat")
+        import os
+        print(os.getcwd())
+        print(utils.DATA_DIR + utils.PCA_FILE)
+        mat = scipy.io.loadmat(utils.PCA_FILE)
+        print("Before squeeze")
         b = np.squeeze(mat['bias'], axis=1)
+        print("Before transpose")
         w = np.transpose(mat['weights'])
+        print("Before layers")
         model.layers[-4].set_weights([w, b])
 
         return model
@@ -165,7 +181,7 @@ class ImageRetrieveDeep:
         # Resize
         scale = utils.IMG_SIZE / max(img.size)
         new_size = (int(np.ceil(scale * img.size[0])), int(np.ceil(scale * img.size[1])))  # (utils.IMG_SIZE, utils.IMG_SIZE)
-        #print('Original size: %s, Resized image: %s' % (str(img.size), str(new_size)))
+        print('Original size: %s, Resized image: %s' % (str(img.size), str(new_size)))
         img = img.resize(new_size)
         # Mean substraction
         x = image.img_to_array(img)
@@ -173,13 +189,16 @@ class ImageRetrieveDeep:
         x = utils.preprocess_image(x)
 
         # Load RMAC model
+        print("Before get_size_vgg_feat_map")
         Wmap, Hmap = self.get_size_vgg_feat_map(x.shape[3], x.shape[2])
+        print("Before rmac_regions")
         regions = self.rmac_regions(Wmap, Hmap, 7)
         #print('Loading RMAC model...')
+        print("Before rmac")
         model = self.rmac((x.shape[1], x.shape[2], x.shape[3]), len(regions))
 
         # Compute RMAC vector
-        #print('Extracting RMAC from image...')
+        print('Extracting RMAC from image...')
         return model.predict([x, np.expand_dims(regions, axis=0)])
 
     """

@@ -47,6 +47,12 @@ class TestImageRetrievalDeep(unittest.TestCase):
         res = deep.build_descriptor_directory_using_images(812)
         assert res == 0
 
+    def test_read_mat_file_extension(self):
+        """ Try to read a mat file"""
+        import scipy
+        mat = scipy.io.loadmat("PCAmatrices.mat")
+        print(mat)
+
 
 if __name__ == '__main__':
     unittest.main()
