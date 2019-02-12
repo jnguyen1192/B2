@@ -97,8 +97,13 @@ class ImageRetrieveDeep:
             if np.isnan(b):  # for the first level
                 b = 0
             cenW = np.floor(wl2 + np.arange(0, l + Wd) * b) - wl2  # center coordinates
-
-            b = (H - wl) / (l + Hd - 1)
+            print("H ", H)
+            print("wl ", wl)
+            print("Hd ", Hd)
+            if l + Hd - 1 == 0:
+                b = 0
+            else:
+                b = (H - wl) / (l + Hd - 1)
             if np.isnan(b):  # for the first level
                 b = 0
             cenH = np.floor(wl2 + np.arange(0, l + Hd) * b) - wl2  # center coordinates
@@ -191,6 +196,9 @@ class ImageRetrieveDeep:
         :param path_des: the path of the descriptor
         :return: the descriptor
         """
+        print("path_des ", path_des)
+        import os
+        print(os.getcwd())
         return np.load(path_des)
 
     """
@@ -232,8 +240,10 @@ class ImageRetrieveDeep:
         :return: the path of the descriptor
         """
         des_dir = self.des_dir
+        print("des_dir ", des_dir)
         # split the path of the image
         split_res = path_img.split("/")
+        split_res = split_res[-1].split("\\")
         # get the image name without the extension .jpg
         img_name_without_extension = split_res[-1].split(".jpg")[0]
         # build the beginning of the path

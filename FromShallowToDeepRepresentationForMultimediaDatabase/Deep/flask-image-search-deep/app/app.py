@@ -29,14 +29,26 @@ def search():
 
         try:
             # initialize the image descriptor
+            print("Before ImageRetrieveDeep")
             ird = ImageRetrieveDeep("", "")
+            print("Before path_img")
             path_img = os.path.join(os.getcwd(), image_url[1:])
+            print("Before r_mac_descriptor")
             des = ird.r_mac_descriptor(path_img)
 
             # perform the search
+            print("Before Searcher")
             searcher = Searcher(des)
-            results = searcher.search(des, "static/dataset_jpg", "descriptor")
+            print("Before search")
+
+            # directories
+            stat = "static"
+            stat_data = os.path.join(stat, "dataset_jpg")
+            stat_desc = "descriptor"
+
+            results = searcher.search(des, stat_data, stat_desc)
             # loop over the results, displaying the score and image name
+            print("Before for")
             for (score, resultID) in results:
                 RESULTS_ARRAY.append(
                     {"image": str(resultID), "score": str(score)})

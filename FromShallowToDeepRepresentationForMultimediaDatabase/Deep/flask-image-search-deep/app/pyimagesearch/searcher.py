@@ -23,6 +23,7 @@ class Searcher:
             des2 = ird.r_mac_descriptor_using_path_des(path_des2)
             # id = path_img split / le dernier
             id = path_img.split("/")[-1]
+            id = id.split("\\")[-1]
             score = ird.matcher(des1, des2)
             # now that we have the distance between the two feature
             # vectors, we can udpate the results dictionary -- the
