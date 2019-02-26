@@ -15,8 +15,13 @@ In this part, we need to retrieve the duplicate image from a dataset.
 
 We follow the rules and use the RMAC algorithm to describe a feature.
 
+The RMAC algorithm was created by Noa Garcia, we only have to use the build of an RMAC descriptor.
+
+
 ### Algorithm
 The main algorithm consists in create a Deep Neural Network to describe a feature.
+We choose to create a class to manipulate the RMAC descriptor.
+We also choose the cosinus similarity to know the score between two images.
 ### Context
 We need to add our image in the directory dataset_jpg on the static directory and on dataset directory from Test directory
 ### Deep descriptor - Results
@@ -31,9 +36,14 @@ pip install -r requirements.txt
 To create a descriptor directory.
 You need to launch the unittest with some pictures on the dataset directory then duplicate them on the dataset_jpg directory.
 
-To launch the flash application.
-You will find every test on Deep/flask-image-search-deep :
-* python3 app.py
+To launch the flask application.
+Launch those commands :
+* cd "Crystal Project #2"
+* chmod +x app.sh
+* ./app.sh
+
+And follow the instructions.
+If it won't work you can contact me at johnny.nguyen@etu.unice.fr
 
 ## References
 - Frederic, P from Shallow to Deep Representation for multimedia database. Lectures 2019.
@@ -43,3 +53,4 @@ You will find every test on Deep/flask-image-search-deep :
 ``` 
 
 [1]: https://www.python.org/download/releases/3.6/
+
